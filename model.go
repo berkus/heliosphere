@@ -3,6 +3,7 @@ package heliosphere
 import (
     "time"
     "errors"
+    "strconv"
 
     "appengine/datastore"
 )
@@ -75,6 +76,60 @@ type Event struct {
     Comments     string
 	Participants []Participant
 }
+
+func (e Event) Name() string {
+    switch e.Type {
+        case VoG: return "Vault of Glass – Normal"
+        case VoG_HM: return "Vault of Glass – Hard"
+        case CE: return "Crota's End – Normal"
+        case CE_HM: return "Crota's End – Hard"
+        case Nightfall: return "Nightfall"
+        case Weekly: return "Weekly Heroic Strike"
+        case Daily: return "Daily Heroic Story"
+        case Strikes: return "Strike Playlist"
+        case Control: return "Control"
+        case Clash: return "Clash"
+        case Salvage: return "Salvage"
+        case Skirmish: return "Skirmish"
+        case Doubles: return "Doubles Skirmish"
+        case Rumble: return "Rumble"
+    }
+    return "Unknown Event Type"
+}
+
+func (e Event) Time() string {
+    return e.Date.Format("15:00")
+}
+
+func (e Event) Count() string {
+    return strconv.Itoa(len(e.Participants)) + "/" + e.Capacity()
+}
+
+func (e Event) Capacity() string {
+    switch e.Type {
+        case VoG: return "6"
+        case VoG_HM: return "6"
+        case CE: return "6"
+        case CE_HM: return "6"
+        case Nightfall: return "3"
+        case Weekly: return "3"
+        case Daily: return "3"
+        case Strikes: return "3"
+        case Control: return "6"
+        case Clash: return "6"
+        case Salvage: return "3"
+        case Skirmish: return "3"
+        case Doubles: return "3"
+        case Rumble: return "6"
+    }
+    return "Unknown Event Type"
+}
+
+type ByDate []Event
+
+func (a ByDate) Len() int           { return len(a) }
+func (a ByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
 type Participant struct {
     Event     *datastore.Key

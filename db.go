@@ -31,8 +31,21 @@ func NewEvent(c appengine.Context, etype EventType, date time.Time, comments str
     return &event, err
 }
 
+func RemoveEvent(c appengine.Context, event *Event) error {
+	q := datastore.NewQuery("Event").Filter("Id =", event.Id).Limit(1).KeysOnly()
+    events, err := q.GetAll(c, nil)
+    if err != nil {
+        return err
+    }
+    if len(events) != 1 {
+        return errors.New("Event not found")
+    }
+    err = datastore.Delete(c, events[0])
+    return err
+}
+
 func GetEvent(c appengine.Context, id int) (*Event, error) {
-	q := datastore.NewQuery("Event").Filter("Id =", id)
+	q := datastore.NewQuery("Event").Filter("Id =", id).Limit(1)
 	var events []Event
     _, err := q.GetAll(c, &events)
     if err != nil {
@@ -45,7 +58,7 @@ func GetEvent(c appengine.Context, id int) (*Event, error) {
 }
 
 func GetEvents(c appengine.Context, page int) ([]Event, error) {
-	q := datastore.NewQuery("Event").Filter("Date >=", time.Now().Add(time.Hour)).Order("-Date").Limit(10).Offset(10 * (page - 1))
+	q := datastore.NewQuery("Event").Filter("Date >=", time.Now().Add(time.Hour)).Order("Date").Limit(10).Offset(10 * (page - 1))
     var events []Event
     _, err := q.GetAll(c, &events)
     return events, err

@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/js/bootstrap-datepicker.min.js"></script>
   <script src="/static/heliosphere.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Events</title>
 </head>
 <body>
   <nav class="navbar navbar-default navbar-static-top">
@@ -86,13 +87,6 @@
     </div>
   </div>
 
-  <div class="container">
-  {{range $key, $value := .}}
-    <h1>{{$key}}</h1>
-    {{range $value}}
-      <pre>{{.Date}}</pre>
-    {{end}}
-  {{end}}
-  </div>
+  {{template "events.html" .}}
 </body>
 </html>

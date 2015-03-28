@@ -2,8 +2,8 @@ package heliosphere
 
 import (
     "fmt"
-    "log"
     "time"
+    "sort"
     "strings"
     "strconv"
     "net/http"
@@ -14,28 +14,30 @@ import (
     "appengine"
 )
 
+var tindex, _ = template.ParseFiles("templates/index.html", "templates/events.html")
+var tevents, _ = template.ParseFiles("templates/events.html")
+
 func initWeb() {
     router := mux.NewRouter()
     
     router.HandleFunc("/events", events).Methods("GET")
     router.HandleFunc("/events", add_event).Methods("POST")
     router.HandleFunc("/events/{id}", event).Methods("GET")
+    router.HandleFunc("/events/{id}", delete_event).Methods("DELETE")
 
     http.Handle("/", router)
 }
 
-func render(w http.ResponseWriter, tmpl string, data interface{}) {
-    t, err := template.ParseFiles("templates/" + tmpl + ".html")
-
+func render(w http.ResponseWriter, tmpl *template.Template, data interface{}) {
+    err := tmpl.Execute(w, data)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-    t.Execute(w, data)
 }
 
 func event(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
+    c := appengine.NewContext(r)
 
     vars := mux.Vars(r)
     id, err := strconv.Atoi(vars["id"])
@@ -43,7 +45,7 @@ func event(w http.ResponseWriter, r *http.Request) {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
-	event, err := GetEvent(c, id)
+    event, err := GetEvent(c, id)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -53,9 +55,9 @@ func event(w http.ResponseWriter, r *http.Request) {
 }
 
 func events(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
+	  c := appengine.NewContext(r)
 
-	events, err := GetEvents(c, 1)
+	  events, err := GetEvents(c, 1)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -68,15 +70,15 @@ func events(w http.ResponseWriter, r *http.Request) {
         grouping[rounded] = append(grouping[rounded], event)
     }
 
-    render(w, "index", grouping)
+    render(w, tindex, grouping)
 }
 
 func stringify(t time.Time) string {
     const layout = "January, 2"
     today := time.Now().Truncate(24 * time.Hour)
-    if t == today {
+    if t.UnixNano() == today.UnixNano() {
         return "Today"
-    } else if t == today.Add(24 * time.Hour) {
+    } else if t.UnixNano() == today.Add(24 * time.Hour).UnixNano() {
         return "Tomorrow"
     } else {
         return t.Format(layout)
@@ -105,19 +107,73 @@ func add_event(w http.ResponseWriter, r *http.Request) {
     date, err3 := time.Parse(layout, edate + " " + etime)
     if err3 != nil {
         http.Error(w, err3.Error(), http.StatusBadRequest)
-        log.Println(err3.Error())
         return
     }
 
     comments := strings.TrimSpace(r.PostFormValue("comments"))
 
-    _, err4 := NewEvent(c, etype, date, comments)
+    event, err4 := NewEvent(c, etype, date, comments)
     if err4 != nil {
         http.Error(w, err4.Error(), http.StatusInternalServerError)
         return
     }
+    
+    events, err5 := GetEvents(c, 1)
+    if err5 != nil {
+        http.Error(w, err4.Error(), http.StatusInternalServerError)
+        return
+    }
 
-    fmt.Fprint(w, "done")
+    events = append(events, *event)
+    sort.Sort(ByDate(events))
+
+    grouping := make(map[string][]Event)
+    for _, event := range events {
+        rounded := stringify(event.Date.Truncate(24 * time.Hour))
+        grouping[rounded] = append(grouping[rounded], event)
+    }
+
+    render(w, tevents, grouping)
+}
+
+func delete_event(w http.ResponseWriter, r *http.Request) {
+    c := appengine.NewContext(r)
+
+    vars := mux.Vars(r)
+    id, err := strconv.Atoi(vars["id"])
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    to_delete, err2 := GetEvent(c, id)
+    if err2 != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    err3 := RemoveEvent(c, to_delete)
+    if err3 != nil {
+        http.Error(w, err3.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    events, err4 := GetEvents(c, 1)
+    if err != nil {
+        http.Error(w, err4.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    sort.Sort(ByDate(events))
+
+    grouping := make(map[string][]Event)
+    for _, event := range events {
+        if event.Id != to_delete.Id {
+            rounded := stringify(event.Date.Truncate(24 * time.Hour))
+            grouping[rounded] = append(grouping[rounded], event)
+        }
+    }
+
+    render(w, tevents, grouping)
 }
 
 func join(w http.ResponseWriter, r *http.Request) {

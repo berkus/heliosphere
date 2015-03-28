@@ -22,8 +22,22 @@ $(document).ready(function() {
         'time': time,
         'comment': comment
       },
-      success: function() {
+      success: function(data) {
         $('#myModal').modal('hide')
+        $('#events_container').replaceWith(data)
+      }
+    });
+  })
+  $('.delete-event').on('click', function (e) {
+    id = $(this).attr('id')
+    $.ajax({
+      type: "DELETE",
+      url: '/events/' + id,
+      success: function(data) {
+        $('#events_container').replaceWith(data)
+      },
+      error: function(data) {
+        console.log(data.responseText)
       }
     });
   })

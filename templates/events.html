@@ -1,0 +1,34 @@
+<div id="events_container" class="container">
+{{range $key, $value := .}}
+  <h1>{{$key}}</h1>
+  {{range $value}}
+    <div>
+      <table class="table">
+        <thead>
+        <tr>
+          <th width="10%">
+            <span class="h3">{{.Time}}</span>
+          </th>
+          <th width="60%">
+            <span class="h3"><small>{{.Name}}</small></span>
+          </th>
+          <th width="10%">
+            <span class="h3">{{.Count}}</span>
+          </th>
+          <th width="10%">
+            <button type="button" class="btn btn-success btn-sm">Join</button>
+          </th>
+          <th width="10%">
+            <button type="button" class="btn btn-default btn-sm delete-event" id="{{.Id}}">
+              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            </button>
+          </th>
+        </tr>
+        </thead>
+        {{range .Participants}}
+        {{end}}
+      </table>
+    </div>
+  {{end}}
+{{end}}
+</div>
