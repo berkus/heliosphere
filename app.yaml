@@ -5,7 +5,8 @@ api_version: go1
 
 handlers:
   - url: /static
-    static_dir: templates
+    static_dir: static
+    application_readable: yes
 
   - url: /.*
     script: _go_app
