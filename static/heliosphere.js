@@ -41,4 +41,35 @@ $(document).ready(function() {
       }
     });
   })
+  initLJ()
 });
+function initLJ() {
+    $('.join-event').on('click', function (e) {
+      id = $(this).attr('id')
+      $.ajax({
+        type: "POST",
+        url: '/events/' + id + '/_join',
+        success: function(data) {
+          $('#events_container').replaceWith(data)
+          initLJ()
+        },
+        error: function(data) {
+          console.log(data.responseText)
+        }
+      });
+    })
+    $('.leave-event').on('click', function (e) {
+      id = $(this).attr('id')
+      $.ajax({
+        type: "POST",
+        url: '/events/' + id + '/_leave',
+        success: function(data) {
+          $('#events_container').replaceWith(data)
+          initLJ()
+        },
+        error: function(data) {
+          console.log(data.responseText)
+        }
+      });
+    })
+}

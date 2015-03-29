@@ -64,6 +64,77 @@ func GetEvents(c appengine.Context, page int) ([]Event, error) {
     return events, err
 }
 
+func GetPlayer(c appengine.Context, id string) (*Player, error) {
+	q := datastore.NewQuery("Player").Filter("Id =", id).Limit(1)
+	var events []Player
+    _, err := q.GetAll(c, &events)
+    if err != nil {
+        return nil, err
+    }
+    if len(events) != 1 {
+        return nil, errors.New("Player not found")
+    }
+    return &events[0], nil
+}
+
+func AddParticipant(c appengine.Context, id int, player *Player) (*Event, error) {
+	q := datastore.NewQuery("Event").Filter("Id =", id).Limit(1)
+	var events []Event
+    keys, err := q.GetAll(c, &events)
+    if err != nil {
+        return nil, err
+    }
+    if len(events) != 1 {
+        return nil, errors.New("Event not found")
+    }
+    event := &events[0]
+
+    event.Participants = append(event.Participants, Participant{Name: player.PSNID})
+
+    _, err2 := datastore.Put(c, keys[0], event)
+
+    return event, err2
+}
+
+func RemoveParticipant(c appengine.Context, id int, player *Player) (*Event, error) {
+	q := datastore.NewQuery("Event").Filter("Id =", id).Limit(1)
+	var events []Event
+    keys, err := q.GetAll(c, &events)
+    if err != nil {
+        return nil, err
+    }
+    if len(events) != 1 {
+        return nil, errors.New("Event not found")
+    }
+    event := &events[0]
+
+    ps := make([]Participant, 0, len(event.Participants))
+    for _, participant := range event.Participants {
+        if participant.Name != player.PSNID {
+            ps = append(ps, participant)
+        }
+    }
+    event.Participants = ps
+
+    _, err2 := datastore.Put(c, keys[0], event)
+
+    return event, err2
+}
+
+func NewPlayer(c appengine.Context, id string, first string, last string, psnid string) (*Player, error) {
+    player := Player{
+        Id: id,
+        FirstName: first,
+        LastName: last,
+        PSNID: psnid,
+    }
+
+    key := datastore.NewIncompleteKey(c, "Player", nil)
+    _, err := datastore.Put(c, key, &player)
+
+    return &player, err
+}
+
 func inc(c appengine.Context, key *datastore.Key) (int, error) {
     var x Counter
     if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {

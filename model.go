@@ -9,6 +9,7 @@ import (
 )
 
 type Player struct {
+    Id        string
     FirstName string
     LastName  string
     PSNID     string
@@ -77,6 +78,12 @@ type Event struct {
 	Participants []Participant
 }
 
+type EventProto struct {
+    Event         *Event
+    IsParticipant bool
+    CanJoin       bool
+}
+
 func (e Event) Name() string {
     switch e.Type {
         case VoG: return "Vault of Glass – Normal"
@@ -102,27 +109,39 @@ func (e Event) Time() string {
 }
 
 func (e Event) Count() string {
-    return strconv.Itoa(len(e.Participants)) + "/" + e.Capacity()
+    return strconv.Itoa(len(e.Participants)) + "/" + strconv.Itoa(e.Capacity())
 }
 
-func (e Event) Capacity() string {
+func (e Event) HasRoom() bool {
+    return len(e.Participants) < e.Capacity()
+}
+
+func (e Event) IsParticipant() bool {
+    return true
+}
+
+func (e Event) CanJoin() bool {
+    return false
+}
+
+func (e Event) Capacity() int {
     switch e.Type {
-        case VoG: return "6"
-        case VoG_HM: return "6"
-        case CE: return "6"
-        case CE_HM: return "6"
-        case Nightfall: return "3"
-        case Weekly: return "3"
-        case Daily: return "3"
-        case Strikes: return "3"
-        case Control: return "6"
-        case Clash: return "6"
-        case Salvage: return "3"
-        case Skirmish: return "3"
-        case Doubles: return "3"
-        case Rumble: return "6"
+        case VoG: return 6
+        case VoG_HM: return 6
+        case CE: return 6
+        case CE_HM: return 6
+        case Nightfall: return 3
+        case Weekly: return 3
+        case Daily: return 3
+        case Strikes: return 3
+        case Control: return 6
+        case Clash: return 6
+        case Salvage: return 3
+        case Skirmish: return 3
+        case Doubles: return 3
+        case Rumble: return 6
     }
-    return "Unknown Event Type"
+    return -1
 }
 
 type ByDate []Event
@@ -132,7 +151,5 @@ func (a ByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
 type Participant struct {
-    Event     *datastore.Key
-	Player    *datastore.Key
-	Character *datastore.Key
+    Name  string
 }

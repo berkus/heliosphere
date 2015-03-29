@@ -12,10 +12,12 @@ import (
     "github.com/gorilla/mux"
 
     "appengine"
+    "appengine/user"
 )
 
 var tindex, _ = template.ParseFiles("templates/index.html", "templates/events.html")
 var tevents, _ = template.ParseFiles("templates/events.html")
+var tplayer, _ = template.ParseFiles("templates/player.html")
 
 func initWeb() {
     router := mux.NewRouter()
@@ -24,6 +26,11 @@ func initWeb() {
     router.HandleFunc("/events", add_event).Methods("POST")
     router.HandleFunc("/events/{id}", event).Methods("GET")
     router.HandleFunc("/events/{id}", delete_event).Methods("DELETE")
+    router.HandleFunc("/events/{id}/_join", join_event).Methods("POST")
+    router.HandleFunc("/events/{id}/_leave", leave_event).Methods("POST")
+
+    router.HandleFunc("/players/new", add_player_form).Methods("GET")
+    router.HandleFunc("/players", add_player).Methods("POST")
 
     http.Handle("/", router)
 }
@@ -55,22 +62,40 @@ func event(w http.ResponseWriter, r *http.Request) {
 }
 
 func events(w http.ResponseWriter, r *http.Request) {
-	  c := appengine.NewContext(r)
+	c := appengine.NewContext(r)
 
-	  events, err := GetEvents(c, 1)
+    player, _ := GetPlayer(c, user.Current(c).ID)
+    if player == nil {
+        http.Redirect(w, r, "/players/new", http.StatusFound)
+        return
+    }
+
+	events, err := GetEvents(c, 1)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
 
-    grouping := make(map[string][]Event)
+    grouping := make(map[string][]EventProto)
 
     for _, event := range events {
         rounded := stringify(event.Date.Truncate(24 * time.Hour))
-        grouping[rounded] = append(grouping[rounded], event)
+        grouping[rounded] = append(grouping[rounded], proto(event, player))
     }
 
     render(w, tindex, grouping)
+}
+
+func proto(event Event, player *Player) (EventProto) {
+    participating := false
+    for _, participant := range event.Participants {
+        if player.PSNID == participant.Name {
+            participating = true
+            break
+        }
+    }
+    can_join := !participating && event.HasRoom()
+    return EventProto{Event: &event, IsParticipant: participating, CanJoin: can_join}
 }
 
 func stringify(t time.Time) string {
@@ -87,6 +112,8 @@ func stringify(t time.Time) string {
 
 func add_event(w http.ResponseWriter, r *http.Request) {
     c := appengine.NewContext(r)
+
+    player, _ := GetPlayer(c, user.Current(c).ID)
 
     err := r.ParseForm()
     if err != nil {
@@ -127,10 +154,10 @@ func add_event(w http.ResponseWriter, r *http.Request) {
     events = append(events, *event)
     sort.Sort(ByDate(events))
 
-    grouping := make(map[string][]Event)
+    grouping := make(map[string][]EventProto)
     for _, event := range events {
         rounded := stringify(event.Date.Truncate(24 * time.Hour))
-        grouping[rounded] = append(grouping[rounded], event)
+        grouping[rounded] = append(grouping[rounded], proto(event, player))
     }
 
     render(w, tevents, grouping)
@@ -138,6 +165,8 @@ func add_event(w http.ResponseWriter, r *http.Request) {
 
 func delete_event(w http.ResponseWriter, r *http.Request) {
     c := appengine.NewContext(r)
+
+    player, _ := GetPlayer(c, user.Current(c).ID)
 
     vars := mux.Vars(r)
     id, err := strconv.Atoi(vars["id"])
@@ -165,21 +194,126 @@ func delete_event(w http.ResponseWriter, r *http.Request) {
 
     sort.Sort(ByDate(events))
 
-    grouping := make(map[string][]Event)
+    grouping := make(map[string][]EventProto)
     for _, event := range events {
         if event.Id != to_delete.Id {
             rounded := stringify(event.Date.Truncate(24 * time.Hour))
-            grouping[rounded] = append(grouping[rounded], event)
+            grouping[rounded] = append(grouping[rounded], proto(event, player))
         }
     }
 
     render(w, tevents, grouping)
 }
 
-func join(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "hello, world")
+func join_event(w http.ResponseWriter, r *http.Request) {
+    c := appengine.NewContext(r)
+
+    player, _ := GetPlayer(c, user.Current(c).ID)
+
+    err := r.ParseForm()
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    vars := mux.Vars(r)
+    id, err := strconv.Atoi(vars["id"])
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    event, err := AddParticipant(c, id, player)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    events, err2 := GetEvents(c, 1)
+    if err2 != nil {
+        http.Error(w, err2.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    grouping := make(map[string][]EventProto)
+    for _, e := range events {
+        if e.Id == event.Id {
+            rounded := stringify(event.Date.Truncate(24 * time.Hour))
+            grouping[rounded] = append(grouping[rounded], proto(*event, player))
+        } else {
+            rounded := stringify(e.Date.Truncate(24 * time.Hour))
+            grouping[rounded] = append(grouping[rounded], proto(e, player))
+        }
+    }
+
+    render(w, tevents, grouping)
 }
 
-func leave(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "hello, world")
+func leave_event(w http.ResponseWriter, r *http.Request) {
+    c := appengine.NewContext(r)
+
+    player, _ := GetPlayer(c, user.Current(c).ID)
+
+    err := r.ParseForm()
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    vars := mux.Vars(r)
+    id, err := strconv.Atoi(vars["id"])
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    event, err := RemoveParticipant(c, id, player)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    events, err2 := GetEvents(c, 1)
+    if err2 != nil {
+        http.Error(w, err2.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    grouping := make(map[string][]EventProto)
+    for _, e := range events {
+        if e.Id == event.Id {
+            rounded := stringify(event.Date.Truncate(24 * time.Hour))
+            grouping[rounded] = append(grouping[rounded], proto(*event, player))
+        } else {
+            rounded := stringify(e.Date.Truncate(24 * time.Hour))
+            grouping[rounded] = append(grouping[rounded], proto(e, player))
+        }
+    }
+
+    render(w, tevents, grouping)
+}
+
+func add_player_form(w http.ResponseWriter, r *http.Request) {
+    render(w, tplayer, nil)
+}
+
+func add_player(w http.ResponseWriter, r *http.Request) {
+    c := appengine.NewContext(r)
+
+    err := r.ParseForm()
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    first := strings.TrimSpace(r.PostFormValue("first"))
+    last := strings.TrimSpace(r.PostFormValue("last"))
+    psnid := strings.TrimSpace(r.PostFormValue("psnid"))
+
+    _, err2 := NewPlayer(c, user.Current(c).ID, first, last, psnid)
+    if err2 != nil {
+        http.Error(w, err2.Error(), http.StatusInternalServerError)
+        return
+    }
+    http.Redirect(w, r, "/events", http.StatusFound)
 }

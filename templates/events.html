@@ -7,25 +7,39 @@
         <thead>
         <tr>
           <th width="10%">
-            <span class="h3">{{.Time}}</span>
+            <span class="h3">{{.Event.Time}}</span>
           </th>
           <th width="60%">
-            <span class="h3"><small>{{.Name}}</small></span>
+            <span class="h3"><small>{{.Event.Name}}</small></span>
           </th>
           <th width="10%">
-            <span class="h3">{{.Count}}</span>
+            <span class="h3">{{.Event.Count}}</span>
           </th>
           <th width="10%">
-            <button type="button" class="btn btn-success btn-sm">Join</button>
+            {{if .IsParticipant}}
+            <button type="button" class="btn btn-danger btn-sm leave-event" id="{{.Event.Id}}">Leave</button>
+            {{else}}
+              {{if .CanJoin}}
+              <button type="button" class="btn btn-success btn-sm join-event" id="{{.Event.Id}}">Join</button>
+              {{else}}
+              {{end}}
+            {{end}}
           </th>
           <th width="10%">
-            <button type="button" class="btn btn-default btn-sm delete-event" id="{{.Id}}">
+            <button type="button" class="btn btn-default btn-sm delete-event" id="{{.Event.Id}}">
               <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
             </button>
           </th>
         </tr>
         </thead>
-        {{range .Participants}}
+        {{range .Event.Participants}}
+        <tr>
+          <td></td>
+          <td>{{ .Name}}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
         {{end}}
       </table>
     </div>
