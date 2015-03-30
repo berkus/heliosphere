@@ -22,6 +22,7 @@ var tplayer, _ = template.ParseFiles("templates/player.html")
 func initWeb() {
 	router := mux.NewRouter()
 
+	router.HandleFunc("/", events).Methods("GET")
 	router.HandleFunc("/events", events).Methods("GET")
 	router.HandleFunc("/events", add_event).Methods("POST")
 	router.HandleFunc("/events/{id}", event).Methods("GET")
