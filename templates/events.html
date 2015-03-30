@@ -1,7 +1,7 @@
 <div id="events_container" class="container">
 {{range $key, $value := .}}
-  <h1>{{$key}}</h1>
-  {{range $value}}
+  <h1>{{$value.Date}}</h1>
+  {{range $value.Events}}
     <div>
       <table class="table">
         <thead>
