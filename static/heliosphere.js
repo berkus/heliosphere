@@ -2,7 +2,8 @@ $(document).ready(function() {
   $('#date').datepicker({
       todayBtn: "linked",
       orientation: "top auto",
-      todayHighlight: true
+      todayHighlight: true,
+      weekStart: 1
   });
   $('#etype-dropdown').on('click', '.option li', function() {
   	var text = $(this).children().text();
