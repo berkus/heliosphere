@@ -108,7 +108,7 @@ func add(event *Event, grouping map[int64]*EventsProto, player *Player) {
 }
 
 func stringify(t time.Time) string {
-	const layout = "January, 2"
+	const layout = "Monday, January 2"
 	today := time.Now().Truncate(24 * time.Hour)
 	if t.UnixNano() == today.UnixNano() {
 		return "Today"
