@@ -142,7 +142,7 @@ func (e *Event) Name() string {
 }
 
 func (e *Event) Time() string {
-	return e.Date.Format("15:00")
+	return e.Date.Format("15:04")
 }
 
 func (e *Event) Count() string {
