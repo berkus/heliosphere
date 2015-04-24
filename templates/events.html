@@ -32,13 +32,15 @@
           </th>
         </tr>
         </thead>
+        {{if gt (len .Event.Comments) 0}}
         <tr>
-            <td></td>
+            <td class="text-right"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></td>
             <td>{{.Event.Comments}}</td>
             <td></td>
             <td></td>
             <td></td>
         </tr>
+        {{end}}
         {{range .Event.Participants}}
         <tr>
           <td></td>
