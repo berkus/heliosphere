@@ -48,7 +48,8 @@ const (
 	Skirmish
 	Doubles
 	Rumble
-	TheArena
+	PrisonOfElders
+	TrialsOfOsiris
 )
 
 func ParseType(etype string) (EventType, error) {
@@ -81,8 +82,10 @@ func ParseType(etype string) (EventType, error) {
 		return Doubles, nil
 	case "Rumble":
 		return Rumble, nil
-	case "The Arena – Normal":
-		return TheArena, nil
+	case "Prison of Elders":
+		return PrisonOfElders, nil
+	case "Trials of Osiris":
+		return TrialsOfOsiris, nil
 	}
 	return -1, errors.New("Unknown Event Type " + etype)
 }
@@ -140,8 +143,10 @@ func (e *Event) Name() string {
 		return "Doubles Skirmish"
 	case Rumble:
 		return "Rumble"
-	case TheArena:
-		return "The Arena – Normal"
+	case PrisonOfElders:
+		return "Prison of Elders"
+	case TrialsOfOsiris:
+		return "Trials of Osiris"
 	}
 	return "Unknown Event Type"
 }
@@ -196,8 +201,10 @@ func (e *Event) Capacity() int {
 		return 3
 	case Rumble:
 		return 6
-	case TheArena:
-		return 6
+	case PrisonOfElders:
+		return 3
+	case TrialsOfOsiris:
+		return 3
 	}
 	return -1
 }
