@@ -13,7 +13,7 @@ $(document).ready(function() {
     etype = $('#etype-btn').text()
     date = $('#date input').val()
     time = $('#time').val()
-    comment = $('#comments').val()
+    comments = $('#comments').val()
     $.ajax({
       type: "POST",
       url: '/events',
@@ -21,7 +21,7 @@ $(document).ready(function() {
         'etype': etype,
         'date': date,
         'time': time,
-        'comment': comment
+        'comments': comments
       },
       success: function(data) {
         $('#myModal').modal('hide')
