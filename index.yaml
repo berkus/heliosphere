@@ -1,7 +1,0 @@
-indexes:
-
-- kind: Event
-  ancestor: no
-  properties:
-  - name: Date
-    direction: asc
