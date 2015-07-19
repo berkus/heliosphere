@@ -1,9 +1,11 @@
 $(document).ready(function() {
   $('#date').datepicker({
-      todayBtn: "linked",
-      orientation: "top auto",
-      todayHighlight: true,
-      weekStart: 1
+    todayBtn: "linked",
+    orientation: "top auto",
+    todayHighlight: true,
+    weekStart: 1
+  }).on('changeDate', function(e){
+    $('#date').val(e.format('mm/dd/yyyy'))
   });
   $('#etype-dropdown').on('click', '.option li', function() {
   	var text = $(this).children().text();
@@ -11,7 +13,7 @@ $(document).ready(function() {
   });
   $('#event-form-submit').on('click', function() {
     etype = $('#etype-btn').text()
-    date = $('#date input').val()
+    date = $('#date').val()
     time = $('#time').val()
     comments = $('#comments').val()
     $.ajax({
