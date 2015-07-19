@@ -26,23 +26,11 @@ $(document).ready(function() {
       success: function(data) {
         $('#myModal').modal('hide')
         $('#events_container').replaceWith(data)
+        initLJ();
       }
     });
   })
-  $('.delete-event').on('click', function (e) {
-    id = $(this).attr('id')
-    $.ajax({
-      type: "DELETE",
-      url: '/events/' + id,
-      success: function(data) {
-        $('#events_container').replaceWith(data)
-      },
-      error: function(data) {
-        console.log(data.responseText)
-      }
-    });
-  })
-  initLJ()
+  initLJ();
 });
 function initLJ() {
     $('.join-event').on('click', function (e) {
@@ -58,7 +46,7 @@ function initLJ() {
           console.log(data.responseText)
         }
       });
-    })
+    });
     $('.leave-event').on('click', function (e) {
       id = $(this).attr('id')
       $.ajax({
@@ -72,5 +60,19 @@ function initLJ() {
           console.log(data.responseText)
         }
       });
-    })
+    });
+    $('.delete-event').on('click', function (e) {
+      id = $(this).attr('id')
+      $.ajax({
+        type: "DELETE",
+        url: '/events/' + id,
+        success: function(data) {
+          $('#events_container').replaceWith(data)
+          initLJ();
+        },
+        error: function(data) {
+          console.log(data.responseText)
+        }
+      });
+    });
 }
