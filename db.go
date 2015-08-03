@@ -58,7 +58,7 @@ func GetEvent(c appengine.Context, id int) (*Event, error) {
 }
 
 func GetEvents(c appengine.Context, page int) ([]Event, error) {
-	q := datastore.NewQuery("Event").Filter("Date >=", time.Now().Add(time.Hour)).Order("Date").Limit(10).Offset(10 * (page - 1))
+	q := datastore.NewQuery("Event").Filter("Date >=", time.Now().Add(time.Hour)).Order("Date").Limit(100).Offset(100 * (page - 1))
 	var events []Event
 	_, err := q.GetAll(c, &events)
 	return events, err
