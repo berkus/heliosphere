@@ -50,6 +50,8 @@ const (
 	Rumble
 	PrisonOfElders
 	TrialsOfOsiris
+	Planetside
+	RocketLeague
 )
 
 func ParseType(etype string) (EventType, error) {
@@ -86,6 +88,10 @@ func ParseType(etype string) (EventType, error) {
 		return PrisonOfElders, nil
 	case "Trials of Osiris":
 		return TrialsOfOsiris, nil
+	case "Planetside":
+		return Planetside, nil
+	case "Rocket League":
+		return RocketLeague, nil
 	}
 	return -1, errors.New("Unknown Event Type " + etype)
 }
@@ -147,6 +153,10 @@ func (e *Event) Name() string {
 		return "Prison of Elders"
 	case TrialsOfOsiris:
 		return "Trials of Osiris"
+	case Planetside:
+		return "Planetside"
+	case RocketLeague:
+		return "Rocket League"
 	}
 	return "Unknown Event Type"
 }
@@ -205,6 +215,10 @@ func (e *Event) Capacity() int {
 		return 3
 	case TrialsOfOsiris:
 		return 3
+	case Planetside:
+		return 1000
+	case RocketLeague:
+		return 4
 	}
 	return -1
 }
