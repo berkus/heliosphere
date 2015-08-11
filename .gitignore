@@ -1,0 +1,5 @@
+*.pyc
+*.iws
+*.ipr
+*.iml
+.idea

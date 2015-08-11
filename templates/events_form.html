@@ -1,0 +1,57 @@
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">New Event</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="event-form">
+                    <div class="form-group">
+                        <label for="date" class="col-sm-2 control-label">Type</label>
+                        <div class="col-sm-10">
+                            <div id="etype-dropdown" class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="etype-btn" data-toggle="dropdown" aria-expanded="true">
+                                    Event Type
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu option" role="menu" aria-labelledby="etype-btn">
+                                    {% for group, types in grouped_types %}
+                                    <li role="presentation" class="dropdown-header">{{ group }}</li>
+                                        {% for type in types %}
+                                        <li role="presentation"><a role="menuitem" tabindex="" selection-id="{{ type.key.id() }}">{{ type.name }}</a></li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Date</label>
+                        <div class="col-sm-10">
+                            <div id="date" class="input-group date">
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="time" class="col-sm-2 control-label">Time</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="time">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="comments" class="col-sm-2 control-label">Comments</label>
+                        <div class="col-sm-10">
+                            <textarea id="comments" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="event-form-submit">Add</button>
+            </div>
+        </div>
+    </div>
+</div>

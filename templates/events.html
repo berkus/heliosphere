@@ -1,57 +1,57 @@
 <div id="events_container" class="container">
-{{range $key, $value := .}}
-  <h1>{{$value.Date}}</h1>
-  {{range $value.Events}}
-    <div>
-      <table class="table">
-        <thead>
-        <tr>
-          <th width="10%">
-            <span class="h3">{{.Event.Time}}</span>
-          </th>
-          <th width="60%">
-            <span class="h3"><small>{{.Event.Name}}</small></span>
-          </th>
-          <th width="10%">
-            <span class="h3">{{.Event.Count}}</span>
-          </th>
-          <th width="10%">
-            {{if .IsParticipant}}
-            <button type="button" class="btn btn-danger btn-sm leave-event" id="{{.Event.Id}}">Leave</button>
-            {{else}}
-              {{if .CanJoin}}
-              <button type="button" class="btn btn-success btn-sm join-event" id="{{.Event.Id}}">Join</button>
-              {{else}}
-              {{end}}
-            {{end}}
-          </th>
-          <th width="10%">
-            <button type="button" class="btn btn-default btn-sm delete-event" id="{{.Event.Id}}">
-              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-            </button>
-          </th>
-        </tr>
-        </thead>
-        {{if gt (len .Event.Comments) 0}}
-        <tr>
-            <td class="text-right"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></td>
-            <td>{{.Event.Comments}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        {{end}}
-        {{range .Event.Participants}}
-        <tr>
-          <td></td>
-          <td>{{ .Name}}</td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-        {{end}}
-      </table>
-    </div>
-  {{end}}
-{{end}}
+{% for group, events in grouped_events %}
+    <h1>{{ group }}</h1>
+    {% for event in events %}
+        {% set type = types[event.type.id()] %}
+        {% set is_participant = event.is_participant(player) %}
+        {% set can_join = event.can_join() %}
+        <div>
+            <table class="table">
+                <thead>
+                <tr id="{{ event.type.id() }}">
+                    <th width="10%">
+                        <span class="h3">{{ event.date.strftime('%H:%M') }}</span>
+                    </th>
+                    <th width="60%">
+                        <span class="h3"><small>{{ type.name }}</small></span>
+                    </th>
+                    <th width="10%">
+                        <span class="h3">{{ event.participants|length }}/{{ type.capacity }}</span>
+                    </th>
+                    <th width="10%">
+                        {% if is_participant %}
+                            <button type="button" class="btn btn-danger btn-sm leave-event" id="{{ event.key.id() }}">Leave</button>
+                        {% elif can_join %}
+                            <button type="button" class="btn btn-success btn-sm join-event" id="{{ event.key.id() }}">Join</button>
+                        {% endif %}
+                    </th>
+                    <th width="10%">
+                        <button type="button" class="btn btn-default btn-sm delete-event" id="{{ event.key.id() }}">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </button>
+                    </th>
+                </tr>
+                </thead>
+                {% if event.comment|length > 0 %}
+                    <tr>
+                        <td class="text-right"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></td>
+                        <td>{{ event.comment }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+                {% for participant in event.participants %}
+                    <tr>
+                        <td></td>
+                        <td>{{ participant }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+{% endfor %}
 </div>

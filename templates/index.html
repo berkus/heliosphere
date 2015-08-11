@@ -1,104 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/css/bootstrap-datepicker.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/css/bootstrap-datepicker3.min.css" />
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/js/bootstrap-datepicker.min.js"></script>
-  <script src="/static/heliosphere.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Events</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/css/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/css/bootstrap-datepicker3.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="/static/heliosphere.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Events</title>
 </head>
 <body>
-  <nav class="navbar navbar-default navbar-static-top">
-  <div class="container">
-    <button type="button" class="btn btn-primary navbar-btn" data-toggle="modal" data-target="#myModal">+Event</button>
-  </div>
-  </nav>
+    {% include 'navbar.html' %}
 
-  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">New Event</h4>
-        </div>
-        <div class="modal-body">
-          <form class="form-horizontal" id="event-form">
-            <div class="form-group">
-              <label for="date" class="col-sm-2 control-label">Type</label>
-              <div class="col-sm-10">
-                <div id="etype-dropdown" class="dropdown">
-                  <button class="btn btn-default dropdown-toggle" type="button" id="etype-btn" data-toggle="dropdown" aria-expanded="true">
-                    Event Type
-                    <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu option" role="menu" aria-labelledby="etype-btn">
-                    <li role="presentation" class="dropdown-header">Raids</li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Vault of Glass – Normal</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Vault of Glass – Hard</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Crota's End – Normal</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Crota's End – Hard</a></li>
-                    <li role="presentation" class="dropdown-header">Not Raids, but kewl</li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Prison of Elders</a></li>
-                    <li role="presentation" class="dropdown-header">Strikes and Stories</li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Nightfall</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Weekly Heroic Strike</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Daily Heroic Story</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Strike Playlist</a></li>
-                    <li role="presentation" class="dropdown-header">Crucible</li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Trials of Osiris</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Control</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Clash</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Rumble</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Skirmish</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Doubles Skirmish</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Salvage</a></li>
-                    <li role="presentation" class="dropdown-header">Other</li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Planetside</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" selection-id="1">Rocket League</a></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-2 control-label">Date</label>
-              <div class="col-sm-10">
-                <div id="date" class="input-group date">
-									<div></div>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="time" class="col-sm-2 control-label">Time</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="time">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="comments" class="col-sm-2 control-label">Comments</label>
-              <div class="col-sm-10">
-                <textarea id="comments" class="form-control" rows="3"></textarea>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" id="event-form-submit">Add</button>
-        </div>
-      </div>
-    </div>
-  </div>
+    {% include 'events_form.html' %}
 
-  {{template "events.html" .}}
+    {% include 'events.html' %}
 
-  <footer class="bs-docs-footer" role="contentinfo" style="border-top: 1px solid #e5e5e5;">
-  <div class="container">
-    <p style="margin-top: 20px;"><a href="https://github.com/artemredkin/heliosphere/issues">Feedback</a></p>
-  </div>
-  </footer>
+    {% include 'footer.html' %}
 </body>
 </html>

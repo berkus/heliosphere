@@ -1,7 +1,14 @@
 application: destiny-heliosphere
 version: 1
-runtime: go
-api_version: go1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+libraries:
+  - name: webapp2
+    version: latest
+  - name: jinja2
+    version: latest
 
 handlers:
   - url: /static
@@ -12,5 +19,9 @@ handlers:
     upload: favicon\.ico
 
   - url: /.*
-    script: _go_app
+    script: rsvp.app
     login: required
+
+  - url: /admin/.*
+    script: rsvp.app
+    login: admin
