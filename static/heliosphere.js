@@ -9,16 +9,16 @@ $(document).ready(function() {
     });
     $('#etype-dropdown').on('click', '.option li', function() {
         var text = $(this).children().text();
-        var id = $(this).children().attr("selection-id")
-        var button = $('#etype-btn')
-        button.html(text + '&nbsp;<span class="caret"></span>')
+        var id = $(this).children().attr("selection-id");
+        var button = $('#etype-btn');
+        button.html(text + '&nbsp;<span class="caret"></span>');
         button.attr("selection-id", id)
     });
     $('#event-form-submit').on('click', function() {
-        event_type = $('#etype-btn').attr("selection-id")
-        date = $('#date').val()
-        time = $('#time').val()
-        comment = $('#comment').val()
+        var event_type = $('#etype-btn').attr("selection-id");
+        var date = $('#date').val();
+        var time = $('#time').val();
+        var comment = $('#comment').val();
         $.ajax({
             type: "POST",
             url: '/',
@@ -29,22 +29,22 @@ $(document).ready(function() {
                 'comment': comment
             },
             success: function(data) {
-                $('#myModal').modal('hide')
-                $('#events_container').replaceWith(data)
+                $('#myModal').modal('hide');
+                $('#events_container').replaceWith(data);
                 initLJ();
             }
         });
-    })
+    });
     initLJ();
 });
 function initLJ() {
-    $('.join-event').on('click', function (e) {
-        id = $(this).attr('id')
+    $('.join-event').on('click', function () {
+        var id = $(this).attr('id');
         $.ajax({
             type: "PUT",
             url: '/events/' + id + '/participants',
             success: function(data) {
-                $('#events_container').replaceWith(data)
+                $('#events_container').replaceWith(data);
                 initLJ()
             },
             error: function(data) {
@@ -52,13 +52,13 @@ function initLJ() {
             }
         });
     });
-    $('.leave-event').on('click', function (e) {
-        id = $(this).attr('id')
+    $('.leave-event').on('click', function () {
+        var id = $(this).attr('id');
         $.ajax({
             type: "DELETE",
             url: '/events/' + id + '/participants',
             success: function(data) {
-                $('#events_container').replaceWith(data)
+                $('#events_container').replaceWith(data);
                 initLJ()
             },
             error: function(data) {
@@ -66,13 +66,13 @@ function initLJ() {
             }
         });
     });
-    $('.delete-event').on('click', function (e) {
-        id = $(this).attr('id')
+    $('.delete-event').on('click', function () {
+        var id = $(this).attr('id');
         $.ajax({
             type: "DELETE",
             url: '/events/' + id,
             success: function(data) {
-                $('#events_container').replaceWith(data)
+                $('#events_container').replaceWith(data);
                 initLJ();
             },
             error: function(data) {

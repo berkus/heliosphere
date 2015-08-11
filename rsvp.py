@@ -26,6 +26,7 @@ class PlayerPage(webapp2.RequestHandler):
 
         self.redirect('/')
 
+
 class MainPage(webapp2.RequestHandler):
 
     def get(self):
@@ -48,6 +49,7 @@ class MainPage(webapp2.RequestHandler):
 
         events_for(self, player)
 
+
 class JoinHandler(webapp2.RequestHandler):
 
     def put(self, event_id):
@@ -60,6 +62,7 @@ class JoinHandler(webapp2.RequestHandler):
         db.leave_event(player, event_id)
         events_for(self, player)
 
+
 class EventHandler(webapp2.RequestHandler):
 
     def delete(self, event_id):
@@ -67,33 +70,38 @@ class EventHandler(webapp2.RequestHandler):
         db.delete_event(player, event_id)
         events_for(self, player)
 
+
 class InitHandler(webapp2.RequestHandler):
 
     def get(self):
         db.init()
         self.response.write("ok")
 
+
 def get_template_values(player):
     types_list = db.find_types()
-    types = dict(map(lambda type: (type.key.id(), type), types_list))
+    types = dict(map(lambda event_type: (event_type.key.id(), event_type), types_list))
     grouped_types = groupby(types_list, db.EventType.pretty_group)
     grouped_events = groupby(db.find_events(), pretty_date)
 
     template_values = {
-        'player' : player,
-        'types' : types,
-        'grouped_types' : grouped_types,
-        'grouped_events' : grouped_events
+        'player': player,
+        'types': types,
+        'grouped_types': grouped_types,
+        'grouped_events': grouped_events
     }
     return template_values
+
 
 def events_page(request, player):
     template = templates.get_template('index.html')
     request.response.write(template.render(get_template_values(player)))
 
+
 def events_for(request, player):
     template = templates.get_template('events.html')
     request.response.write(template.render(get_template_values(player)))
+
 
 def pretty_date(event):
     date = event.date
