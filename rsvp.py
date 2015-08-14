@@ -27,6 +27,16 @@ class PlayerPage(webapp2.RequestHandler):
         self.redirect('/')
 
 
+class InfoPage(webapp2.RequestHandler):
+
+    def get(self):
+        player = db.find_player(users.get_current_user().user_id())
+        if player is None:
+            self.redirect('/players')
+        template = templates.get_template('info.html')
+        self.response.write(template.render())
+
+
 class MainPage(webapp2.RequestHandler):
 
     def get(self):
@@ -122,6 +132,7 @@ templates = jinja2.Environment(
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/players', PlayerPage),
+    ('/info', InfoPage),
     ('/events/(\d+)/participants', JoinHandler),
     ('/events/(\d+)', EventHandler),
     ('/admin/init', InitHandler)
