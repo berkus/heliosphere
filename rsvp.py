@@ -13,18 +13,33 @@ from google.appengine.api import users
 class PlayerPage(webapp2.RequestHandler):
 
     def get(self):
+        player = db.find_player(users.get_current_user().user_id())
+        template_values = {
+            'registered': (player is not None),
+            'player': player.to_dict()
+        }
         template = templates.get_template('player.html')
-        self.response.write(template.render())
+        self.response.write(template.render(template_values))
 
     def post(self):
         user_id = users.get_current_user().user_id()
         first_name = self.request.get('first_name')
         last_name = self.request.get('last_name')
         psn_id = self.request.get('psn_id')
+        list_me = self.request.get('list_me') == 'on'
+        telegram = self.request.get('telegram')
+        bungie = self.request.get('bungie')
+        dtr = self.request.get('dtr')
+        youtube = self.request.get('youtube')
+        twitch = self.request.get('twitch')
 
-        db.add_player(user_id, first_name, last_name, psn_id)
-
-        self.redirect('/')
+        player = db.find_player(user_id)
+        if player is None:
+            db.add_player(user_id, first_name, last_name, psn_id, telegram, bungie, dtr, youtube, twitch, list_me)
+            self.redirect('/')
+        else:
+            db.update_player(player, first_name, last_name, psn_id, telegram, bungie, dtr, youtube, twitch, list_me)
+            self.redirect('/players')
 
 
 class InfoPage(webapp2.RequestHandler):
@@ -33,8 +48,11 @@ class InfoPage(webapp2.RequestHandler):
         player = db.find_player(users.get_current_user().user_id())
         if player is None:
             self.redirect('/players')
+        template_values = {
+            'players' : map(lambda player: player.to_dict(), db.find_players(True))
+        }
         template = templates.get_template('info.html')
-        self.response.write(template.render())
+        self.response.write(template.render(template_values))
 
 
 class MainPage(webapp2.RequestHandler):

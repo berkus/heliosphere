@@ -14,35 +14,37 @@
 <body>
 {% include 'navbar.html' %}
 
+{% macro link(url) -%}
+    {% if url != None and url|length > 0 %}
+        <a href="{{ url }}"><span class="glyphicon glyphicon-link btn btn-default" aria-hidden="true"></span></a>
+    {%  endif %}
+{%- endmacro %}
+
 <div id="events_container" class="container">
     <h1>We Are</h1>
-    <table class="table">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>psn</th>
+                <th>telegram</th>
                 <th>bungie</th>
                 <th>dtr</th>
                 <th>youtube</th>
                 <th>twitch</th>
             </tr>
         </thead>
-        <tr>
-            <td>Artem, Clan Leader</td>
-            <td>redkinartem</td>
-            <td><a href="https://www.bungie.net/en/Profile/254/8798042"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
-            <td><a href="http://destinytracker.com/destiny/crucible/ps/redkinartem"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
-            <td><a href="https://www.youtube.com/user/Aredkin/videos"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
-            <td><a href="http://www.twitch.tv/artemredkin"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
-        </tr>
-        <tr>
-            <td>Victoria</td>
-            <td>citizencursed</td>
-            <td><a href="https://www.bungie.net/en/Profile/254/9200928"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
-            <td><a href="http://destinytracker.com/destiny/crucible/ps/citizencursed"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
-            <td><a href="https://www.youtube.com/user/acedpang/videos"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
-            <td><a href="http://www.twitch.tv/citizencursed"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></td>
-        </tr>
+        {% for player in players %}
+            <tr>
+                <td>{{ player.first_name }}{% if player.leader %}, Clan Leader{% endif %}</td>
+                <td>{{ player.psn_id }}</td>
+                <td>{{ player.telegram }}</td>
+                <td>{{ link(player.bungie) }}</td>
+                <td>{{ link(player.dtr) }}</td>
+                <td>{{ link(player.youtube) }}</td>
+                <td>{{ link(player.twitch) }}</td>
+            </tr>
+        {%  endfor %}
     </table>
 </div>
 

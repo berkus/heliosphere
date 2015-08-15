@@ -8,30 +8,52 @@
 <body>
     {% include 'navbar.html' %}
 
+    {% macro input(name, attribute, value) -%}
+        <div class="form-group">
+            <label for="{{ attribute }}" class="col-sm-2 control-label">{{ name }}</label>
+            <div class="col-sm-10">
+                {% if player is defined %}
+                    {% set value = player.get(attribute) %}
+                    <input type="text" class="form-control" id="{{ attribute }}" name="{{ attribute }}" value="{{ value|default("", True) }}">
+                {% else %}
+                    <input type="text" class="form-control" id="{{ attribute }}" name="{{ attribute }}">
+                {% endif %}
+            </div>
+        </div>
+    {%- endmacro %}
+
     <div class="container">
         <form class="form-horizontal" id="event-form" action="/players" method="POST">
             <div class="form-group">
                 <label class="col-sm-2 control-label"> </label>
-                <div class="col-sm-10"><h2>Introduce yourself:</h2></div>
+                {% if registered %}
+                    <div class="col-sm-10"><h2>You Are:</h2></div>
+                {% else %}
+                    <div class="col-sm-10"><h2>Introduce yourself:</h2></div>
+                {% endif %}
             </div>
+            {{ input('First Name', 'first_name') }}
+            {{ input('Last Name', 'last_name') }}
+            {{ input('PSN', 'psn_id') }}
+            {{ input('Telegram', 'telegram') }}
+            {{ input('Bungie', 'bungie') }}
+            {{ input('DTR', 'dtr') }}
+            {{ input('YouTube', 'youtube') }}
+            {{ input('Twitch', 'twitch') }}
             <div class="form-group">
-                <label for="first_name" class="col-sm-2 control-label">First Name</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" id="first_name" name="first_name">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <div class="checkbox">
+                        <label>
+                            {% if player is defined and player.list_me %}
+                                <input type="checkbox" id="list_me" name="list_me" checked> List me
+                            {%  else %}
+                                <input type="checkbox" id="list_me" name="list_me"> List me
+                            {%  endif %}
+                        </label>
+                    </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="last_name" class="col-sm-2 control-label">Last Name</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" id="last_name" name="last_name">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="psn_id" class="col-sm-2 control-label">PSN ID</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" id="psn_id" name="psn_id">
-                </div>
-            </div>
+
             <div class="form-group">
                 <label for="psn_id" class="col-sm-2 control-label"></label>
                 <div class="col-sm-10">

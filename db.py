@@ -6,9 +6,17 @@ from google.appengine.ext import ndb
 
 
 class Player(ndb.Model):
+    order = ndb.IntegerProperty(indexed=True)
     first_name = ndb.StringProperty(indexed=False)
     last_name = ndb.StringProperty(indexed=False)
     psn_id = ndb.StringProperty(indexed=False, required=True)
+    leader = ndb.BooleanProperty(indexed=True)
+    telegram = ndb.StringProperty(indexed=False)
+    bungie = ndb.StringProperty(indexed=False)
+    dtr = ndb.StringProperty(indexed=False)
+    youtube = ndb.StringProperty(indexed=False)
+    twitch = ndb.StringProperty(indexed=False)
+    list_me = ndb.BooleanProperty(indexed=True)
 
 event_groups = {
     0: "Raids",
@@ -51,14 +59,33 @@ class Event(ndb.Model):
 events_ancestor = ndb.Key(Event, 'Events')
 
 
+def find_players(only_listed):
+    q = Player.query()
+    if only_listed:
+        q = q.filter(Player.list_me == True)
+    return q.fetch()
+
 def find_player(user_id):
     return Player.get_by_id(user_id)
 
 
 @ndb.transactional(xg=True)
-def add_player(user_id, first_name, last_name, psn_id):
-    Player(id=user_id, first_name=first_name, last_name=last_name, psn_id=psn_id).put()
+def add_player(user_id, first_name, last_name, psn_id, telegram, bungie, dtr, youtube, twitch, list_me):
+    Player(id=user_id, first_name=first_name, last_name=last_name, psn_id=psn_id, list=list, telegram=telegram,
+           bungie=bungie, dtr=dtr, youtube=youtube, twitch=twitch, list_me=list_me).put()
 
+@ndb.transactional(xg=True)
+def update_player(player, first_name, last_name, psn_id, telegram, bungie, dtr, youtube, twitch, list_me):
+    player.first_name = first_name
+    player.last_name = last_name
+    player.psn_id = psn_id
+    player.telegram = telegram
+    player.bungie = bungie
+    player.dtr = dtr
+    player.youtube = youtube
+    player.twitch = twitch
+    player.list_me = list_me
+    player.put()
 
 def find_types():
     return EventType.query().order(EventType.group).fetch()
