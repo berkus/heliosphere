@@ -4,6 +4,7 @@ import os
 import webapp2
 import jinja2
 import db
+import dinklebot
 
 from itertools import groupby
 from datetime import datetime, timedelta
@@ -106,6 +107,12 @@ class InitHandler(webapp2.RequestHandler):
         self.response.write("ok")
 
 
+class BotHandler(webapp2.RequestHandler):
+
+    def post(self):
+        self.response.write(dinklebot.message(self.request))
+
+
 def get_template_values(player):
     types_list = db.find_types()
     types = dict(map(lambda event_type: (event_type.key.id(), event_type), types_list))
@@ -153,5 +160,6 @@ app = webapp2.WSGIApplication([
     ('/info', InfoPage),
     ('/events/(\d+)/participants', JoinHandler),
     ('/events/(\d+)', EventHandler),
-    ('/admin/init', InitHandler)
+    ('/admin/init', InitHandler),
+    ('/bot/_tell', BotHandler)
 ], debug=True)

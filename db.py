@@ -60,6 +60,11 @@ class Event(ndb.Model):
         event_type = EventType.get_by_id(self.type.id())
         return event_type.capacity > len(self.participants)
 
+
+class Keys(ndb.Model):
+    value = ndb.StringProperty(required=True)
+
+
 events_ancestor = ndb.Key(Event, 'Events')
 
 
@@ -128,6 +133,10 @@ def delete_event(player, event_id):
     event = Event.get_by_id(event_id, parent=events_ancestor)
     if event.author == player.key:
         event.key.delete()
+
+
+def get_key(kind):
+    return Keys.get_by_id(kind).value
 
 
 class Counter(ndb.Model):

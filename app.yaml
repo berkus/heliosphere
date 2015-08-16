@@ -18,6 +18,10 @@ handlers:
     static_files: favicon.ico
     upload: favicon\.ico
 
+  - url: /bot/.*
+    script: rsvp.app
+    login: optional
+
   - url: /.*
     script: rsvp.app
     login: required
