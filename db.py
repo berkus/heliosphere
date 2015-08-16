@@ -83,6 +83,7 @@ def add_player(user_id, first_name, last_name, psn_id, telegram, bungie, dtr, yo
     Player(id=user_id, first_name=first_name, last_name=last_name, psn_id=psn_id, leader=False, list=list, telegram=telegram,
            bungie=bungie, dtr=dtr, youtube=youtube, twitch=twitch, list_me=list_me).put()
 
+
 @ndb.transactional(xg=True)
 def update_player(player, first_name, last_name, psn_id, telegram, bungie, dtr, youtube, twitch, list_me):
     player.first_name = first_name
@@ -95,6 +96,11 @@ def update_player(player, first_name, last_name, psn_id, telegram, bungie, dtr, 
     player.twitch = twitch
     player.list_me = list_me
     player.put()
+
+
+def find_type(id):
+    return EventType.get_by_id(id)
+
 
 def find_types():
     return EventType.query().order(EventType.group).fetch()
