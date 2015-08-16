@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 __author__ = 'artemredkin'
 
-import db
 import json
 import urllib
+import urlparse
+import db
 
 from datetime import datetime, timedelta
 from google.appengine.api import urlfetch
+from poster.encode import multipart_encode, MultipartParam
 
 
 telegram_key = None
+google_search_key = None
 api_url = 'https://api.telegram.org/bot'
 
 
@@ -47,8 +50,30 @@ def rsvp(chat, author, cmd):
         send(chat, events)
 
 
-def images(chat, author, arguments):
-    pass
+def images(chat, author, q):
+    global google_search_key
+    if google_search_key is None:
+        google_search_key = db.get_key('google_search')
+    data = {
+        'key': google_search_key,
+        'cx': '009373417816394415455:i3e_omr58us',
+        'q': q,
+        'searchType': 'image',
+        'num': 1
+    }
+    response = urlfetch.fetch(url='https://www.googleapis.com/customsearch/v1?' + urllib.urlencode(data), method=urlfetch.GET)
+    items = json.loads(response.content)['items']
+    if len(items) == 0:
+        send(chat, "Nothing found")
+        return
+    image = items[0]
+    image_url = image['link']
+    image_response = urlfetch.fetch(image_url, method=urlfetch.GET)
+    if image_response.status_code != 200:
+        send(chat, "Error retrieving image")
+        return
+    image_name = urlparse.urlsplit(image_url).path.split('/')[-1]
+    send_image(chat, image_response.content, image_name, image['mime'])
 
 
 commands = {
@@ -88,3 +113,20 @@ def send(recipient, message):
                    payload=urllib.urlencode(data),
                    method=urlfetch.POST,
                    headers={'Content-Type': 'application/x-www-form-urlencoded'})
+
+
+def send_image(recipient, image_content, image_name, image_type):
+    global telegram_key
+    global api_url
+
+    if telegram_key is None:
+        telegram_key = db.get_key('telegram')
+    data = {
+        'chat_id': recipient,
+        'photo': MultipartParam('photo', value=image_content, filename=image_name, filetype=image_type)
+    }
+    payload, headers = multipart_encode(data)
+    urlfetch.fetch(url=api_url + telegram_key + '/sendPhoto',
+                   payload=''.join(payload),
+                   method=urlfetch.POST,
+                   headers={'Content-Type': headers['Content-Type']})
