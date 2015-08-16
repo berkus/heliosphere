@@ -9,9 +9,10 @@ class Player(ndb.Model):
     order = ndb.IntegerProperty(indexed=True)
     first_name = ndb.StringProperty(indexed=False)
     last_name = ndb.StringProperty(indexed=False)
-    psn_id = ndb.StringProperty(indexed=False, required=True)
+    psn_id = ndb.StringProperty(indexed=True, required=True)
     leader = ndb.BooleanProperty(indexed=True)
     telegram = ndb.StringProperty(indexed=False)
+    telegram_id = ndb.IntegerProperty(indexed=True)
     bungie = ndb.StringProperty(indexed=False)
     dtr = ndb.StringProperty(indexed=False)
     youtube = ndb.StringProperty(indexed=False)
@@ -74,8 +75,27 @@ def find_players(only_listed):
         q = q.filter(Player.list_me == True)
     return q.order(Player.order).fetch()
 
+
 def find_player(user_id):
     return Player.get_by_id(user_id)
+
+
+def find_player_by_psn_id(psn_id):
+    for player in Player.query(Player.psn_id == psn_id).fetch(1):
+        return player
+    return None
+
+
+def find_player_by_telegram_id(telegram_id):
+    for player in Player.query(Player.telegram_id == telegram_id).fetch(1):
+        return player
+    return None
+
+
+@ndb.transactional
+def register_player_telegram(player, telegram_id):
+    player.telegram_id = telegram_id
+    player.put()
 
 
 @ndb.transactional(xg=True)

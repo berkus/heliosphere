@@ -41,6 +41,18 @@ def pretty_event(event):
 
 
 def rsvp(chat, author, cmd):
+    if cmd.startswith('register'):
+        psn_id = cmd.split(None, 1)[1]
+        player = db.find_player_by_psn_id(psn_id)
+        if player is None:
+            return
+        db.register_player_telegram(player, author)
+        send(chat, psn_id + " registered")
+        return
+    player = db.find_player_by_telegram_id(author)
+    if player is None:
+        send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+        return
     if cmd == 'list':
         event_list = db.find_events()
         if len(event_list) == 0:
