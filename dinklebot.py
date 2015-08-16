@@ -43,7 +43,7 @@ def rsvp(author, cmd):
         if len(list) == 0:
             send(author, "No events")
             return
-        events = '\n'.join(map(pretty_event, )).encode('utf-8')
+        events = '\n'.join(map(pretty_event, list)).encode('utf-8')
         send(author, events)
 
 
