@@ -18,6 +18,10 @@ class Player(ndb.Model):
     twitch = ndb.StringProperty(indexed=False)
     list_me = ndb.BooleanProperty(indexed=True)
 
+    def get(self, attr):
+        return getattr(self, attr)
+
+
 event_groups = {
     0: "Raids",
     1: "Not Raids, but kewl",

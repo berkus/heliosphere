@@ -16,7 +16,7 @@ class PlayerPage(webapp2.RequestHandler):
         player = db.find_player(users.get_current_user().user_id())
         template_values = {
             'registered': (player is not None),
-            'player': player.to_dict()
+            'player': player
         }
         template = templates.get_template('player.html')
         self.response.write(template.render(template_values))
