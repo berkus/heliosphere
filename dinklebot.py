@@ -13,8 +13,8 @@ telegram_key = None
 api_url = 'https://api.telegram.org/bot'
 
 
-def echo(author, arguments):
-    send(author, arguments)
+def echo(chat, author, arguments):
+    send(chat, arguments)
 
 
 def pretty_date(event):
@@ -33,21 +33,21 @@ def pretty_event(event):
     participants = '[' + ', '.join(event.participants) + ']'
     s = pretty_date(event) + '\t' + event.date.strftime('%H:%M') + '\t' + event_name + '\t' + participants
     if len(event.comment) > 0:
-        s = s + '\t–\t' + event.comment
+        s = s + u'\t–\t' + event.comment
     return s
 
 
-def rsvp(author, cmd):
+def rsvp(chat, author, cmd):
     if cmd == 'list':
-        list = db.find_events()
-        if len(list) == 0:
+        event_list = db.find_events()
+        if len(event_list) == 0:
             send(author, "No events")
             return
-        events = '\n'.join(map(pretty_event, list)).encode('utf-8')
-        send(author, events)
+        events = '\n'.join(map(pretty_event, event_list)).encode('utf-8')
+        send(chat, events)
 
 
-def images(author, arguments):
+def images(chat, author, arguments):
     pass
 
 
@@ -58,20 +58,25 @@ commands = {
 }
 
 
-def message(request):
+def recieve(request):
     r = json.loads(request.body)
     message = r['message']['text']
-    author = r['message']['chat']['id']
+    author = r['message']['from']['id']
+    chat = r['message']['chat']['id']
     if message.startswith('!'):
         (command, arguments) = message.split(None, 1)
         if command in commands:
-            commands[command](author, arguments)
+            commands[command](chat, author, arguments)
     return ''
 
 
 def send(recipient, message):
     global telegram_key
     global api_url
+
+    if recipient == 'console':
+        print(message)
+        return
 
     if telegram_key is None:
         telegram_key = db.get_key('telegram')

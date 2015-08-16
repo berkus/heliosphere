@@ -110,7 +110,7 @@ class InitHandler(webapp2.RequestHandler):
 class BotHandler(webapp2.RequestHandler):
 
     def post(self):
-        self.response.write(dinklebot.message(self.request))
+        self.response.write(dinklebot.recieve(self.request))
 
 
 def get_template_values(player):
