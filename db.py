@@ -35,6 +35,7 @@ event_groups = {
 class EventType(ndb.Model):
     group = ndb.IntegerProperty(indexed=True, required=True)
     name = ndb.StringProperty(indexed=False, required=True)
+    code = ndb.StringProperty(indexed=True)
     capacity = ndb.IntegerProperty(indexed=False, required=True)
 
     def pretty_group(self):
@@ -122,6 +123,12 @@ def find_type(type_id):
     return EventType.get_by_id(type_id)
 
 
+def find_type_by_code(type_code):
+    for event_type in EventType.query(EventType.code == type_code).fetch(1):
+        return event_type
+    return None
+
+
 def find_types():
     return EventType.query().order(EventType.group).fetch()
 
@@ -179,29 +186,35 @@ def get_and_increment(collection):
     return counter.count
 
 
+def reindex():
+    for player in Player.query().fetch():
+        player.put()
+
+
 def init():
-    EventType(id='0', group=2, name="Patrol", capacity=3).put()
-    EventType(id='1', group=2, name="Story", capacity=3).put()
-    EventType(id='2', group=2, name="Daily Heroic Story", capacity=3).put()
-    EventType(id='3', group=2, name="Weekly Heroic Strike", capacity=3).put()
-    EventType(id='4', group=2, name="Nightfall Strike", capacity=3).put()
-    EventType(id='5', group=2, name="Strikes", capacity=3).put()
+    EventType(id='0', group=2, name="Patrol", code="patrol", capacity=3).put()
+    EventType(id='1', group=2, name="Story", code="story", capacity=3).put()
+    EventType(id='2', group=2, name="Daily Heroic Story", code="daily", capacity=3).put()
+    EventType(id='3', group=2, name="Weekly Heroic Strike", code="weekly", capacity=3).put()
+    EventType(id='4', group=2, name="Nightfall Strike", code="nightfall", capacity=3).put()
+    EventType(id='5', group=2, name="Strikes", code="strikes", capacity=3).put()
 
-    EventType(id='6', group=0, name="Vault of Glass – Normal", capacity=6).put()
-    EventType(id='7', group=0, name="Vault of Glass – Hard", capacity=6).put()
-    EventType(id='8', group=0, name="Crota's End – Normal", capacity=6).put()
-    EventType(id='9', group=0, name="Crota's End – Hard", capacity=6).put()
+    EventType(id='6', group=0, name="Vault of Glass – Normal", code="vog", capacity=6).put()
+    EventType(id='7', group=0, name="Vault of Glass – Hard", code="vog_hard", capacity=6).put()
+    EventType(id='8', group=0, name="Crota's End – Normal", code="crota", capacity=6).put()
+    EventType(id='9', group=0, name="Crota's End – Hard", code="crota_hard", capacity=6).put()
 
-    EventType(id='16', group=1, name="Prison of Elders", capacity=3).put()
+    EventType(id='16', group=1, name="Prison of Elders", code="poe", capacity=3).put()
 
-    EventType(id='10', group=3, name="Control", capacity=6).put()
-    EventType(id='11', group=3, name="Clash", capacity=6).put()
-    EventType(id='12', group=3, name="Salvage", capacity=3).put()
-    EventType(id='13', group=3, name="Skirmish", capacity=3).put()
-    EventType(id='14', group=3, name="Doubles", capacity=3).put()
-    EventType(id='15', group=3, name="Rumble", capacity=3).put()
+    EventType(id='10', group=3, name="Control", code="control", capacity=6).put()
+    EventType(id='11', group=3, name="Clash", code="clash", capacity=6).put()
+    EventType(id='12', group=3, name="Salvage", code="salvage", capacity=3).put()
+    EventType(id='13', group=3, name="Skirmish", code="skirmish", capacity=3).put()
+    EventType(id='14', group=3, name="Doubles", code="doubles", capacity=3).put()
+    EventType(id='15', group=3, name="Rumble", code="rumble", capacity=3).put()
 
-    EventType(id='17', group=3, name="Trials of Osiris", capacity=3).put()
+    EventType(id='17', group=3, name="Trials of Osiris", code="trials", capacity=3).put()
 
-    EventType(id='18', group=4, name="Planetside", capacity=100).put()
-    EventType(id='19', group=4, name="Rocket League", capacity=6).put()
+    EventType(id='18', group=4, name="Planetside", code="ps", capacity=100).put()
+    EventType(id='19', group=4, name="Rocket League", code="rl", capacity=6).put()
+    EventType(id='20', group=4, name="Borderlands", code="bl", capacity=6).put()

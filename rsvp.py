@@ -1,141 +1,13 @@
+# -*- coding: utf-8 -*-
 __author__ = 'artemredkin'
 
-import os
-import webapp2
-import jinja2
 import db
+import telegram
 import dinklebot
-
-from itertools import groupby
-from datetime import datetime, timedelta
-from google.appengine.api import users
+import collections
 
 
-class PlayerPage(webapp2.RequestHandler):
-
-    def get(self):
-        player = db.find_player(users.get_current_user().user_id())
-        template_values = {
-            'registered': (player is not None),
-            'player': player
-        }
-        template = templates.get_template('player.html')
-        self.response.write(template.render(template_values))
-
-    def post(self):
-        user_id = users.get_current_user().user_id()
-        first_name = self.request.get('first_name')
-        last_name = self.request.get('last_name')
-        psn_id = self.request.get('psn_id')
-        list_me = self.request.get('list_me') == 'on'
-        telegram = self.request.get('telegram')
-        bungie = self.request.get('bungie')
-        dtr = self.request.get('dtr')
-        youtube = self.request.get('youtube')
-        twitch = self.request.get('twitch')
-
-        player = db.find_player(user_id)
-        if player is None:
-            db.add_player(user_id, first_name, last_name, psn_id, telegram, bungie, dtr, youtube, twitch, list_me)
-            self.redirect('/')
-        else:
-            db.update_player(player, first_name, last_name, psn_id, telegram, bungie, dtr, youtube, twitch, list_me)
-            self.redirect('/players')
-
-
-class InfoPage(webapp2.RequestHandler):
-
-    def get(self):
-        player = db.find_player(users.get_current_user().user_id())
-        if player is None:
-            self.redirect('/players')
-        template_values = {
-            'players': map(lambda p: p.to_dict(), db.find_players(True))
-        }
-        template = templates.get_template('info.html')
-        self.response.write(template.render(template_values))
-
-
-class MainPage(webapp2.RequestHandler):
-
-    def get(self):
-        player = db.find_player(users.get_current_user().user_id())
-        if player is None:
-            self.redirect('/players')
-
-        events_page(self, player)
-
-    def post(self):
-        event_type = self.request.get('event_type')
-        date = self.request.get('date')
-        time = self.request.get('time')
-        comment = self.request.get('comment')
-
-        event_date = datetime.strptime(date + ' ' + time, '%m/%d/%Y %H:%M')
-
-        player = db.find_player(users.get_current_user().user_id())
-        db.add_event(player, event_type, event_date, comment)
-
-        events_for(self, player)
-
-
-class JoinHandler(webapp2.RequestHandler):
-
-    def put(self, event_id):
-        player = db.find_player(users.get_current_user().user_id())
-        db.join_event(player, event_id)
-        events_for(self, player)
-
-    def delete(self, event_id):
-        player = db.find_player(users.get_current_user().user_id())
-        db.leave_event(player, event_id)
-        events_for(self, player)
-
-
-class EventHandler(webapp2.RequestHandler):
-
-    def delete(self, event_id):
-        player = db.find_player(users.get_current_user().user_id())
-        db.delete_event(player, event_id)
-        events_for(self, player)
-
-
-class InitHandler(webapp2.RequestHandler):
-
-    def get(self):
-        db.init()
-        self.response.write("ok")
-
-
-class BotHandler(webapp2.RequestHandler):
-
-    def post(self):
-        dinklebot.recieve(self.request)
-
-
-def get_template_values(player):
-    types_list = db.find_types()
-    types = dict(map(lambda event_type: (event_type.key.id(), event_type), types_list))
-    grouped_types = groupby(types_list, db.EventType.pretty_group)
-    grouped_events = groupby(db.find_events(), pretty_date)
-
-    template_values = {
-        'player': player,
-        'types': types,
-        'grouped_types': grouped_types,
-        'grouped_events': grouped_events
-    }
-    return template_values
-
-
-def events_page(request, player):
-    template = templates.get_template('index.html')
-    request.response.write(template.render(get_template_values(player)))
-
-
-def events_for(request, player):
-    template = templates.get_template('events.html')
-    request.response.write(template.render(get_template_values(player)))
+from datetime import date, time, datetime, timedelta
 
 
 def pretty_date(event):
@@ -149,18 +21,239 @@ def pretty_date(event):
         return date.strftime('%A, %B %d')
 
 
-templates = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")),
-    extensions=['jinja2.ext.autoescape'],
-    autoescape=True)
+def pretty_event(event):
+    event_name = db.find_type(event.type.id()).name
+    participants = '\n'.join(event.participants)
+    s = str(event.key.id()) + ': ' + pretty_date(event) + '\t' + event.date.strftime('%H:%M') + '\n' + event_name + '\n' + participants
+    if len(event.comment) > 0:
+        s = s + '\n' + event.comment
+    return s.encode('utf-8')
 
 
-app = webapp2.WSGIApplication([
-    ('/', MainPage),
-    ('/players', PlayerPage),
-    ('/info', InfoPage),
-    ('/events/(\d+)/participants', JoinHandler),
-    ('/events/(\d+)', EventHandler),
-    ('/admin/init', InitHandler),
-    ('/bot/_tell', BotHandler)
-], debug=True)
+class RsvpRegisterCommand:
+
+    def call(self, chat, author, psn_id):
+        if psn_id is None:
+            telegram.send(chat, "Specify your psn-id")
+            return
+        player = db.find_player_by_psn_id(psn_id)
+        if player is None:
+            telegram.send(chat, "Player with psn-id " + psn_id + " not found")
+            return
+        db.register_player_telegram(player, author)
+        telegram.send(chat, psn_id + " registered")
+
+    def help(self):
+        return "!r register <psn-id>"
+
+    def name(self):
+        return "register"
+
+    def description(self):
+        return "Register with LFG bot"
+
+
+class RsvpTypesCommand:
+
+    def call(self, chat, author, arguments):
+        player = db.find_player_by_telegram_id(author)
+        if player is None:
+            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            return
+        type_list = db.find_types()
+        telegram.send(chat, '\n'.join(map(lambda t: t.code.encode('utf-8') + ': ' + t.name.encode('utf-8'), type_list)))
+
+    def help(self):
+        return "!r list"
+
+    def name(self):
+        return "list"
+
+    def description(self):
+        return "List available events"
+
+
+class RsvpListCommand:
+
+    def call(self, chat, author, arguments):
+        player = db.find_player_by_telegram_id(author)
+        if player is None:
+            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            return
+        event_list = db.find_events()
+        if len(event_list) == 0:
+            telegram.send(author, "No events")
+            return
+        if arguments is not None:
+            event_list = filter(lambda e: player.psn_id in e.participants, event_list)
+        for e in event_list:
+            telegram.send(chat, pretty_event(e))
+
+    def help(self):
+        return "!r list"
+
+    def name(self):
+        return "list"
+
+    def description(self):
+        return "List available events"
+
+
+class RsvpNewCommand:
+
+    def call(self, chat, author, arguments):
+        player = db.find_player_by_telegram_id(author)
+        if player is None:
+            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            return
+        (event_type_code, date_code, time_code, comment) = self.parse_arguments(chat, arguments)
+        event_type = db.find_type_by_code(event_type_code)
+        if event_type is None:
+            telegram.send(chat, "Event type not found: " + event_type_code + ", see available types: !r types")
+            return
+        if date_code == 'today':
+            day = date.today()
+        elif date_code == 'tomorrow':
+            day = date.today() + timedelta(days=1)
+        else:
+            day = datetime.strptime(date_code, '%d/%m')
+
+        d = datetime.combine(day, datetime.strptime(time_code, '%H:%M').time())
+        db.add_event(player, event_type.key.id(), d, comment)
+        telegram.send(chat, "Event added")
+
+    def parse_arguments(self, chat, arguments):
+        values = arguments.split(None, 3)
+        if len(values) < 3:
+            telegram.send(chat, "Not enough arguments")
+            return
+        if len(values) < 4:
+            return values + [None]
+        return values
+
+    def help(self):
+        return "!r add <event type> <date> <time> [comment]"
+
+    def name(self):
+        return "new"
+
+    def description(self):
+        return "Add new event"
+
+
+class RsvpJoinCommand:
+
+    def call(self, chat, author, event_id):
+        player = db.find_player_by_telegram_id(author)
+        if player is None:
+            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            return
+        db.join_event(player, event_id)
+        telegram.send(chat, "Joined")
+
+    def help(self):
+        return "!r join <event id>"
+
+    def name(self):
+        return "join"
+
+    def description(self):
+        return "Join event"
+
+
+class RsvpLeaveCommand:
+
+    def call(self, chat, author, event_id):
+        player = db.find_player_by_telegram_id(author)
+        if player is None:
+            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            return
+        db.leave_event(player, event_id)
+        telegram.send(chat, "Left")
+
+    def help(self):
+        return "!r leave <event id>"
+
+    def name(self):
+        return "leave"
+
+    def description(self):
+        return "Leave event"
+
+
+class RsvpDeleteCommand:
+
+    def call(self, chat, author, event_id):
+        player = db.find_player_by_telegram_id(author)
+        if player is None:
+            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            return
+        db.delete_event(player, event_id)
+        telegram.send(chat, "Deleted")
+
+    def help(self):
+        return "!r rm <event id>"
+
+    def name(self):
+        return "rm"
+
+    def description(self):
+        return "Delete event"
+
+
+class RsvpCommand:
+
+    def __init__(self):
+        self.commands = collections.OrderedDict({
+            'register': RsvpRegisterCommand(),
+            'types': RsvpTypesCommand(),
+            'list': RsvpListCommand(),
+            'new': RsvpNewCommand(),
+            'join': RsvpJoinCommand(),
+            'leave': RsvpLeaveCommand(),
+            'delete': RsvpDeleteCommand(),
+        })
+
+    def call(self, chat, author, cmd):
+        (command, arguments) = dinklebot.parse(cmd)
+        if command in self.commands:
+            self.commands[command].call(chat, author, arguments)
+            return
+        telegram.send(chat, 'Uknown command: ' + command)
+
+
+    def help(self):
+        return """Usage
+register:
+    !r register <psn-id>
+
+list all types:
+    !r types
+
+list all events:
+    !r list
+
+list your events:
+    !r list my
+
+add event:
+    !r new <event type> <date> <time> [comment]
+
+join event:
+    !r join <event id>
+
+leave event:
+    !r leave <event id>
+
+delete event:
+    !r rm <event id>
+
+update event:
+    !r <event id> <event type> <date> at <time>
+"""
+
+    def name(self):
+        return "!r"
+
+    def description(self):
+        return "Heliosphere LFG"

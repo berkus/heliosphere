@@ -19,13 +19,13 @@ handlers:
     upload: favicon\.ico
 
   - url: /bot/.*
-    script: rsvp.app
+    script: web.app
     login: optional
 
   - url: /.*
-    script: rsvp.app
+    script: web.app
     login: required
 
   - url: /admin/.*
-    script: rsvp.app
+    script: web.app
     login: admin

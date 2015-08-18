@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 __author__ = 'artemredkin'
 
 import json
@@ -7,8 +6,8 @@ import urlparse
 import db
 import telegram
 import collections
+import rsvp
 
-from datetime import datetime, timedelta
 from google.appengine.api import urlfetch
 
 
@@ -47,82 +46,6 @@ class EchoCommand(Command):
 
     def description(self):
         return "Send back message"
-
-
-class RsvpCommand(Command):
-
-    @staticmethod
-    def pretty_date(event):
-        date = event.date
-        today = datetime.today().date()
-        if date.date() == today:
-            return "Today"
-        elif date.date() == today - timedelta(hours=24):
-            return "Tomorrow"
-        else:
-            return date.strftime('%A, %B %d')
-
-    def pretty_event(self, event):
-        event_name = db.find_type(event.type.id()).name
-        participants = '[' + ', '.join(event.participants) + ']'
-        s = self.pretty_date(event) + '\t' + event.date.strftime('%H:%M') + '\t' + event_name + '\t' + participants
-        if len(event.comment) > 0:
-            s = s + u'\t–\t' + event.comment
-        return s
-
-    def call(self, chat, author, cmd):
-        if cmd.startswith('register'):
-            psn_id = cmd.split(None, 1)[1]
-            player = db.find_player_by_psn_id(psn_id)
-            if player is None:
-                return
-            db.register_player_telegram(player, author)
-            telegram.send(chat, psn_id + " registered")
-            return
-        player = db.find_player_by_telegram_id(author)
-        if player is None:
-            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
-            return
-        if cmd == 'list':
-            event_list = db.find_events()
-            if len(event_list) == 0:
-                telegram.send(author, "No events")
-                return
-            events = '\n'.join(map(self.pretty_event, event_list)).encode('utf-8')
-            telegram.send(chat, events)
-
-    def help(self):
-        return """Usage
-register:
-    !r register <psn-id>
-
-list all events:
-    !r list
-
-list your events:
-    !r list my
-
-add event:
-    !r new <event type> <date> at <time>
-
-join event:
-    !r join <event id>
-
-leave event:
-    !r leave <event id>
-
-delete event:
-    !r rm <event id>
-
-update event:
-    !r <event id> <event type> <date> at <time>
-"""
-
-    def name(self):
-        return "!r"
-
-    def description(self):
-        return "Heliosphere LFG"
 
 
 class ImageCommand(Command):
@@ -167,7 +90,7 @@ class ImageCommand(Command):
 commands = collections.OrderedDict({
     '!echo': EchoCommand(),
     '!img': ImageCommand(),
-    '!r': RsvpCommand(),
+    '!r': rsvp.RsvpCommand(),
 })
 
 
@@ -191,4 +114,4 @@ def recieve(request):
             telegram.send(chat, response)
             return
         if command in commands:
-            commands[command](chat, author, arguments)
+            commands[command].call(chat, author, arguments)
