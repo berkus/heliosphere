@@ -50,7 +50,7 @@ class InfoPage(webapp2.RequestHandler):
         if player is None:
             self.redirect('/players')
         template_values = {
-            'players' : map(lambda player: player.to_dict(), db.find_players(True))
+            'players': map(lambda p: p.to_dict(), db.find_players(True))
         }
         template = templates.get_template('info.html')
         self.response.write(template.render(template_values))
@@ -110,7 +110,7 @@ class InitHandler(webapp2.RequestHandler):
 class BotHandler(webapp2.RequestHandler):
 
     def post(self):
-        self.response.write(dinklebot.recieve(self.request))
+        dinklebot.recieve(self.request)
 
 
 def get_template_values(player):

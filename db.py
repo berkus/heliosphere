@@ -118,8 +118,8 @@ def update_player(player, first_name, last_name, psn_id, telegram, bungie, dtr, 
     player.put()
 
 
-def find_type(id):
-    return EventType.get_by_id(id)
+def find_type(type_id):
+    return EventType.get_by_id(type_id)
 
 
 def find_types():
