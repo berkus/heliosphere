@@ -47,7 +47,7 @@ class Command:
 class EchoCommand(Command):
 
     def call(self, chat, author, arguments):
-        telegram.send(chat, arguments)
+        telegram.send(chat, arguments.encode('utf-8'))
 
     def help(self):
         return "Usage: /echo <string>"
