@@ -7,6 +7,7 @@ import db
 import telegram
 import collections
 import rsvp
+import logging
 
 from google.appengine.api import urlfetch
 
@@ -114,4 +115,7 @@ def recieve(request):
             telegram.send(chat, response)
             return
         if command in commands:
-            commands[command].call(chat, author, arguments)
+            try:
+                commands[command].call(chat, author, arguments)
+            except Exception as e:
+                logging.error(e)

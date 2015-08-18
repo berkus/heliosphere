@@ -3,7 +3,6 @@ __author__ = 'artemredkin'
 import json
 import urllib
 import db
-import logging
 
 
 from google.appengine.api import urlfetch
@@ -17,7 +16,6 @@ api_url = 'https://api.telegram.org/bot'
 def recieve(request):
     r = json.loads(request.body)
     chat = r['message']['chat']['id']
-    logging.info(json.dumps(r))
     message = ""
     if 'text' in r['message']:
         message = r['message']['text']

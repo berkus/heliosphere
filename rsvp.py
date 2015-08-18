@@ -6,7 +6,6 @@ import telegram
 import dinklebot
 import collections
 
-
 from datetime import date, time, datetime, timedelta
 
 
@@ -116,8 +115,11 @@ class RsvpNewCommand:
         elif date_code == 'tomorrow':
             day = date.today() + timedelta(days=1)
         else:
+            year = date.today().year
             day = datetime.strptime(date_code, '%d/%m')
-
+            day = day.replace(year=year)
+        if comment is None:
+            comment = ""
         d = datetime.combine(day, datetime.strptime(time_code, '%H:%M').time())
         db.add_event(player, event_type.key.id(), d, comment)
         telegram.send(chat, "Event added")
@@ -211,7 +213,7 @@ class RsvpCommand:
             'new': RsvpNewCommand(),
             'join': RsvpJoinCommand(),
             'leave': RsvpLeaveCommand(),
-            'delete': RsvpDeleteCommand(),
+            'rm': RsvpDeleteCommand(),
         })
 
     def call(self, chat, author, cmd):
