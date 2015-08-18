@@ -23,10 +23,11 @@ def pretty_date(event):
 def pretty_event(event):
     event_name = db.find_type(event.type.id()).name
     participants = '\n'.join(event.participants)
-    s = str(event.key.id()) + ': ' + pretty_date(event) + '\t' + event.date.strftime('%H:%M') + '\n' + event_name + '\n' + participants
+    s = (str(event.key.id()) + ': ' + pretty_date(event) + '  at  ' + event.date.strftime('%H:%M') + '\n' + event_name).encode('utf-8')
     if len(event.comment) > 0:
-        s = s + '\n' + event.comment
-    return s.encode('utf-8')
+        s += '  –  ' + event.comment.encode('utf-8')
+    s += '\n' + participants.encode('utf-8')
+    return s
 
 
 class RsvpRegisterCommand:
@@ -63,13 +64,13 @@ class RsvpTypesCommand:
         telegram.send(chat, '\n'.join(map(lambda t: t.code.encode('utf-8') + ': ' + t.name.encode('utf-8'), type_list)))
 
     def help(self):
-        return "/r list"
+        return "/r types"
 
     def name(self):
-        return "list"
+        return "types"
 
     def description(self):
-        return "List available events"
+        return "List available types"
 
 
 class RsvpListCommand:
@@ -77,14 +78,17 @@ class RsvpListCommand:
     def call(self, chat, author, arguments):
         player = db.find_player_by_telegram_id(author)
         if player is None:
-            telegram.send(chat, "Introduce yourself by providing your psn id: /r register <psn-id>")
+            telegram.send(chat, 'Introduce yourself by providing your psn id: /r register <psn-id>')
             return
         event_list = db.find_events()
         if len(event_list) == 0:
-            telegram.send(author, "No events")
+            telegram.send(author, 'No events')
             return
-        if arguments is not None:
+        if arguments is None:
+            event_list = filter(lambda e: e.date.date() == datetime.today().date(), event_list)
+        elif arguments == 'my':
             event_list = filter(lambda e: player.psn_id in e.participants, event_list)
+
         for e in event_list:
             telegram.send(chat, pretty_event(e))
 
@@ -231,11 +235,14 @@ register:
 list all types:
     /r types
 
-list all events:
+list today events:
     /r list
 
 list your events:
     /r list my
+
+list all events:
+    /r list all
 
 add event:
     /r new <event type> <date> <time> [comment]

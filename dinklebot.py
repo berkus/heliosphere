@@ -158,4 +158,4 @@ def recieve(request):
                 commands[command].call(chat, author, arguments)
             except Exception as e:
                 logging.info(request)
-                logging.error(e)
+                logging.error(e, exc_info=True)
