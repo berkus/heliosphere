@@ -128,9 +128,11 @@ update event:
 class ImageCommand(Command):
 
     def __init__(self):
-        self.google_search_key = db.get_key('google_search')
+        self.google_search_key = None
 
     def call(self, chat, author, q):
+        if self.google_search_key is None:
+            self.google_search_key = db.get_key('google_search')
         data = {
             'key': self.google_search_key,
             'cx': '009373417816394415455:i3e_omr58us',

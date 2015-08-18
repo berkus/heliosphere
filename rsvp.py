@@ -154,6 +154,7 @@ templates = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
+
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/players', PlayerPage),
