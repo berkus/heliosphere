@@ -44,7 +44,7 @@ class RsvpRegisterCommand:
         telegram.send(chat, psn_id + " registered")
 
     def help(self):
-        return "!r register <psn-id>"
+        return "/r register <psn-id>"
 
     def name(self):
         return "register"
@@ -58,13 +58,13 @@ class RsvpTypesCommand:
     def call(self, chat, author, arguments):
         player = db.find_player_by_telegram_id(author)
         if player is None:
-            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            telegram.send(chat, "Introduce yourself by providing your psn id: /r register <psn-id>")
             return
         type_list = db.find_types()
         telegram.send(chat, '\n'.join(map(lambda t: t.code.encode('utf-8') + ': ' + t.name.encode('utf-8'), type_list)))
 
     def help(self):
-        return "!r list"
+        return "/r list"
 
     def name(self):
         return "list"
@@ -78,7 +78,7 @@ class RsvpListCommand:
     def call(self, chat, author, arguments):
         player = db.find_player_by_telegram_id(author)
         if player is None:
-            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            telegram.send(chat, "Introduce yourself by providing your psn id: /r register <psn-id>")
             return
         event_list = db.find_events()
         if len(event_list) == 0:
@@ -90,7 +90,7 @@ class RsvpListCommand:
             telegram.send(chat, pretty_event(e))
 
     def help(self):
-        return "!r list"
+        return "/r list"
 
     def name(self):
         return "list"
@@ -104,12 +104,12 @@ class RsvpNewCommand:
     def call(self, chat, author, arguments):
         player = db.find_player_by_telegram_id(author)
         if player is None:
-            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            telegram.send(chat, "Introduce yourself by providing your psn id: /r register <psn-id>")
             return
         (event_type_code, date_code, time_code, comment) = self.parse_arguments(chat, arguments)
         event_type = db.find_type_by_code(event_type_code)
         if event_type is None:
-            telegram.send(chat, "Event type not found: " + event_type_code + ", see available types: !r types")
+            telegram.send(chat, "Event type not found: " + event_type_code + ", see available types: /r types")
             return
         if date_code == 'today':
             day = date.today()
@@ -132,7 +132,7 @@ class RsvpNewCommand:
         return values
 
     def help(self):
-        return "!r add <event type> <date> <time> [comment]"
+        return "/r add <event type> <date> <time> [comment]"
 
     def name(self):
         return "new"
@@ -146,13 +146,13 @@ class RsvpJoinCommand:
     def call(self, chat, author, event_id):
         player = db.find_player_by_telegram_id(author)
         if player is None:
-            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            telegram.send(chat, "Introduce yourself by providing your psn id: /r register <psn-id>")
             return
         db.join_event(player, event_id)
         telegram.send(chat, "Joined")
 
     def help(self):
-        return "!r join <event id>"
+        return "/r join <event id>"
 
     def name(self):
         return "join"
@@ -166,13 +166,13 @@ class RsvpLeaveCommand:
     def call(self, chat, author, event_id):
         player = db.find_player_by_telegram_id(author)
         if player is None:
-            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            telegram.send(chat, "Introduce yourself by providing your psn id: /r register <psn-id>")
             return
         db.leave_event(player, event_id)
         telegram.send(chat, "Left")
 
     def help(self):
-        return "!r leave <event id>"
+        return "/r leave <event id>"
 
     def name(self):
         return "leave"
@@ -186,13 +186,13 @@ class RsvpDeleteCommand:
     def call(self, chat, author, event_id):
         player = db.find_player_by_telegram_id(author)
         if player is None:
-            telegram.send(chat, "Introduce yourself by providing your psn id: !r register <psn-id>")
+            telegram.send(chat, "Introduce yourself by providing your psn id: /r register <psn-id>")
             return
         db.delete_event(player, event_id)
         telegram.send(chat, "Deleted")
 
     def help(self):
-        return "!r rm <event id>"
+        return "/r rm <event id>"
 
     def name(self):
         return "rm"
@@ -225,35 +225,35 @@ class RsvpCommand:
     def help(self):
         return """Usage
 register:
-    !r register <psn-id>
+    /r register <psn-id>
 
 list all types:
-    !r types
+    /r types
 
 list all events:
-    !r list
+    /r list
 
 list your events:
-    !r list my
+    /r list my
 
 add event:
-    !r new <event type> <date> <time> [comment]
+    /r new <event type> <date> <time> [comment]
 
 join event:
-    !r join <event id>
+    /r join <event id>
 
 leave event:
-    !r leave <event id>
+    /r leave <event id>
 
 delete event:
-    !r rm <event id>
+    /r rm <event id>
 
 update event:
-    !r <event id> <event type> <date> at <time>
+    /r <event id> <event type> <date> at <time>
 """
 
     def name(self):
-        return "!r"
+        return "/r"
 
     def description(self):
         return "Heliosphere LFG"

@@ -39,10 +39,10 @@ class EchoCommand(Command):
         telegram.send(chat, arguments)
 
     def help(self):
-        return "Usage: !echo <string>"
+        return "Usage: /echo <string>"
 
     def name(self):
-        return "!echo"
+        return "/echo"
 
     def description(self):
         return "Send back message"
@@ -59,7 +59,7 @@ class ImageCommand(Command):
         data = {
             'key': self.google_search_key,
             'cx': '009373417816394415455:i3e_omr58us',
-            'q': q,
+            'q': q.encode('utf-8'),
             'searchType': 'image',
             'num': 1
         }
@@ -78,29 +78,29 @@ class ImageCommand(Command):
         telegram.send_image(chat, image_response.content, image_name, image['mime'])
 
     def help(self):
-        return "Usage: !img <query>"
+        return "Usage: /img <query>"
 
     def name(self):
-        return "!img"
+        return "/img"
 
     def description(self):
         return "Google Image Search"
 
 
 commands = collections.OrderedDict({
-    '!echo': EchoCommand(),
-    '!img': ImageCommand(),
-    '!r': rsvp.RsvpCommand(),
+    '/echo': EchoCommand(),
+    '/img': ImageCommand(),
+    '/r': rsvp.RsvpCommand(),
 })
 
 
 def recieve(request):
     (chat, author, message) = telegram.recieve(request)
-    if message.startswith('!'):
+    if message.startswith('/'):
         (command, arguments) = parse(message)
-        if command == '!help':
+        if command == '/help':
             if arguments is not None:
-                cmd = '!' + arguments
+                cmd = '/' + arguments
                 if cmd not in commands:
                     telegram.send(chat, "Uknown command: " + str(arguments))
                     return
@@ -110,7 +110,7 @@ def recieve(request):
             response = 'Commands:'
             for name, command in commands.iteritems():
                 response += '\n' + name + ': ' + command.description()
-            response += '\n\nType !help <command> to know more'
+            response += '\n\nType /help <command> to know more'
             telegram.send(chat, response)
             return
         if command in commands:
