@@ -223,7 +223,6 @@ class RsvpCommand:
             return
         telegram.send(chat, 'Uknown command: ' + command)
 
-
     def help(self):
         return """Usage
 register:
