@@ -19,6 +19,15 @@ def parse(message):
     return values
 
 
+class Registry():
+
+    def __init__(self):
+        self.commands = commands = collections.OrderedDict({})
+
+    def register(self, command):
+        self.commands[command.name()] = command
+
+
 class Command:
 
     def call(self, chat, author, arguments):
@@ -88,14 +97,14 @@ class ImageCommand(Command):
         return "Google Image Search"
 
 
-commands = collections.OrderedDict({
-    '/echo': EchoCommand(),
-    '/img': ImageCommand(),
-    '/r': rsvp.RsvpCommand(),
-})
+r = Registry()
+r.register(EchoCommand())
+r.register(ImageCommand())
+r.register(rsvp.RsvpCommand())
 
 
 def recieve(request):
+    commands = r.commands
     (chat, author, message) = telegram.recieve(request)
     if message.startswith('/'):
         (command, arguments) = parse(message)
