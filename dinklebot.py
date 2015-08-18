@@ -98,31 +98,44 @@ class ImageCommand(Command):
         return "Google Image Search"
 
 
+class QuoteCommand(Command):
+
+    def __init__(self):
+        self.quotes = ['We\'ve woken the hiiiveee!', 'Well, at least it\'s chained up.',
+                       'An I thought YOU had the hard job.', 'I\'m beginning to sense a pattern!',
+                       'Don\'t do that.', 'Can\'t we just stay here with the murderous robots?',
+                       'Well that had to ruin their day.', 'I think you got your point across.',
+                       'IT\'S IN THE WALLS!!!', 'That wizard came from The Moon.',
+                       'Just so you know I have no idea what I\'m doing','This should take us right to the grave.',
+                       'I\'m a Ghost, actually', 'We may want to move back.',
+                       'Think they\'d mind if we take their Pikes?','Fallen ships this close to the surface.... MOVE!',
+                       'This will take just a little while longer.', 'So... think you can kill a God?',
+                       'This could be bad!', 'This could be good!', 'This could be going better...',
+                       'Those Fallen are just as crazy as we are.', 'I\'ll work faster']
+
+    def call(self, chat, author, arguments):
+        telegram.send(chat, random.choice(self.quotes))
+
+    def help(self):
+        return "Usage: /quote"
+
+    def name(self):
+        return "/quote"
+
+    def description(self):
+        return "Dinklebot Wisdom"
+
+
 r = Registry()
 r.register(EchoCommand())
 r.register(ImageCommand())
 r.register(rsvp.RsvpCommand())
-
-
-quotes = ['We\'ve woken the hiiiveee!', 'Well, at least it\'s chained up.',
-          'An I thought YOU had the hard job.', 'I\'m beginning to sense a pattern!',
-          'Don\'t do that.', 'Can\'t we just stay here with the murderous robots?',
-          'Well that had to ruin their day.', 'I think you got your point across.',
-          'IT\'S IN THE WALLS!!!', 'That wizard came from The Moon.',
-          'Just so you know I have no idea what I\'m doing','This should take us right to the grave.',
-          'I\'m a Ghost, actually', 'We may want to move back.',
-          'Think they\'d mind if we take their Pikes?','Fallen ships this close to the surface.... MOVE!',
-          'This will take just a little while longer.', 'So... think you can kill a God?',
-          'This could be bad!', 'This could be good!', 'This could be going better...',
-          'Those Fallen are just as crazy as we are.', 'I\'ll work faster']
+r.register(QuoteCommand())
 
 
 def recieve(request):
     commands = r.commands
     (chat, author, message) = telegram.recieve(request)
-    if message == '!test':
-        telegram.send(chat, random.choice(quotes))
-        return
     if message.startswith('/'):
         (command, arguments) = parse(message)
         if command == '/help':
