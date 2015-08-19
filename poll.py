@@ -111,6 +111,25 @@ class VotePollCommand:
         return "vote"
 
 
+def pretty_results(chat, poll):
+    if poll.users_asnwers is None:
+        telegram.send(chat, "No answers yet")
+        return
+    results = {}
+    all_count = len(poll.users_asnwers)
+    for user, answer in poll.users_asnwers.iteritems():
+        (count, prcnt) = results.get(answer, (0, 0.0))
+        count += 1
+        results[answer] = (count, (count/all_count * 100))
+    s = 'Results:\n'
+    answers = []
+    for i, answer in enumerate(poll.answers):
+        (count, prcnt) = results.get(i + 1, (0, 0.0))
+        answers.append(answer.encode('utf-8') + ': ' + str(count) + ' votes, ' + str(prcnt) + '%')
+    s += '\n'.join(answers)
+    telegram.send(chat, s)
+
+
 class ResultPollCommand:
 
     def call(self, chat, author, arguments):
@@ -118,22 +137,7 @@ class ResultPollCommand:
         if poll is None:
             telegram.send(chat, "No active poll")
             return
-        if poll.users_asnwers is None:
-            telegram.send(chat, "No answers yet")
-            return
-        results = {}
-        all_count = len(poll.users_asnwers)
-        for user, answer in poll.users_asnwers.iteritems():
-            (count, prcnt) = results.get(answer, (0, 0.0))
-            count += 1
-            results[answer] = (count, (count/all_count * 100))
-        s = 'Results:\n'
-        answers = []
-        for i, answer in enumerate(poll.answers):
-            (count, prcnt) = results.get(i + 1, (0, 0.0))
-            answers.append(answer.encode('utf-8') + ': ' + str(count) + ' votes, ' + str(prcnt) + '%')
-        s += '\n'.join(answers)
-        telegram.send(chat, s)
+        pretty_results(chat, poll)
 
     def help(self):
         return "To see active poll results type: /results"
@@ -152,6 +156,7 @@ class EndPollCommand:
         if poll is None:
             telegram.send(chat, "No active poll")
             return
+        pretty_results(chat, poll)
         db.end_poll(poll)
 
 
