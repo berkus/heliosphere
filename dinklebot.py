@@ -75,6 +75,7 @@ class ImageCommand(Command):
             'cx': '009373417816394415455:i3e_omr58us',
             'q': q.encode('utf-8'),
             'searchType': 'image',
+            'safe': 'medium',
             'num': 10
         }
         response = urlfetch.fetch(url='https://www.googleapis.com/customsearch/v1?' + urllib.urlencode(data), method=urlfetch.GET)
