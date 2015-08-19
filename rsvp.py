@@ -86,12 +86,17 @@ class RsvpListCommand:
             event_list = filter(lambda e: e.date.date() == datetime.today().date(), event_list)
         elif arguments == 'my':
             event_list = filter(lambda e: player.psn_id in e.participants, event_list)
+        elif arguments == 'all':
+            pass
+        elif arguments is not None:
+            event_type = db.find_type_by_code(arguments).key
+            event_list = filter(lambda e: e.type == event_type, event_list)
 
         for e in event_list:
             telegram.send(chat, pretty_event(e))
 
     def help(self):
-        return "Usage: /list [my|all]"
+        return "Usage: /list [my|all|type]"
 
     def name(self):
         return "/list"
