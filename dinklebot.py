@@ -64,8 +64,10 @@ class ImageCommand(Command):
 
     def __init__(self):
         self.google_search_key = None
+        self.cache_list = []
+        self.cache = {}
 
-    def call(self, chat, author, q):
+    def find(self, q, start):
         if self.google_search_key is None:
             self.google_search_key = db.get_key('google_search')
         data = {
@@ -73,14 +75,32 @@ class ImageCommand(Command):
             'cx': '009373417816394415455:i3e_omr58us',
             'q': q.encode('utf-8'),
             'searchType': 'image',
-            'num': 1
+            'num': 10
         }
         response = urlfetch.fetch(url='https://www.googleapis.com/customsearch/v1?' + urllib.urlencode(data), method=urlfetch.GET)
-        items = json.loads(response.content)['items']
-        if len(items) == 0:
-            telegram.send(chat, "Nothing found")
-            return
-        image = items[0]
+        return json.loads(response.content)['items']
+
+    def call(self, chat, author, q):
+        if q in self.cache:
+            (items, offset) = self.cache[q]
+            if offset == 10:
+                items = self.find(q, 10)
+                offset = 0
+            self.cache[q] = (items, offset + 1)
+            image = items[offset]
+        else:
+            items = self.find(q, 0)
+            if len(items) == 0:
+                telegram.send(chat, "Nothing found")
+                return
+            image = items[0]
+            if self.cache_list == 10:
+                last = self.cache_list[0]
+                self.cache_list.pop(0)
+                self.cache.pop(last, None)
+            self.cache_list.append(q)
+            self.cache[q] = (items, 1)
+
         image_url = image['link']
         image_response = urlfetch.fetch(image_url, method=urlfetch.GET)
         if image_response.status_code != 200:
