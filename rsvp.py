@@ -8,14 +8,14 @@ from datetime import date, datetime, timedelta
 
 
 def pretty_date(event):
-    date = event.date
+    d = event.date
     today = datetime.today().date()
-    if date.date() == today:
+    if d.date() == today:
         return "Today"
-    elif date.date() == today - timedelta(hours=24):
+    elif d.date() == today - timedelta(hours=24):
         return "Tomorrow"
     else:
-        return date.strftime('%A, %B %d')
+        return d.strftime('%A, %B %d')
 
 
 def pretty_event(event):
