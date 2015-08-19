@@ -31,7 +31,7 @@ class PollCommand:
         telegram.send(chat, pretty_poll(poll))
 
     def help(self):
-        return "Usage: /poll"
+        return "To see active poll type: /poll"
 
     def name(self):
         return "/poll"
@@ -50,7 +50,7 @@ class NewPollCommand:
         telegram.send(chat, "Poll added, now add answers with /answer <answer>")
 
     def help(self):
-        return "Usage: /newpoll"
+        return "To add new poll type: /newpoll <question>"
 
     def name(self):
         return "/newpoll"
@@ -70,7 +70,7 @@ class AsnwerCommand:
         telegram.send(chat, "Answer addded")
 
     def help(self):
-        return "Usage: /answer <answer>"
+        return "To add answer to active poll type: /answer <answer>"
 
     def name(self):
         return "/answer"
@@ -104,7 +104,7 @@ class VotePollCommand:
         telegram.send(chat, "Answer recorded")
 
     def help(self):
-        return "Usage: /vote <choice>"
+        return "To vote type: /vote <choice>"
 
     def name(self):
         return "/vote"
@@ -138,7 +138,7 @@ class ResultPollCommand:
         telegram.send(chat, s)
 
     def help(self):
-        return "Usage: /results"
+        return "To see active poll results type: /results"
 
     def name(self):
         return "/results"
