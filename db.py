@@ -67,6 +67,12 @@ class Keys(ndb.Model):
     value = ndb.StringProperty(required=True)
 
 
+class Poll(ndb.Model):
+    question = ndb.StringProperty(required=True)
+    answers = ndb.StringProperty(repeated=True)
+    users_asnwers = ndb.JsonProperty()
+
+
 events_ancestor = ndb.Key(Event, 'Events')
 
 
@@ -171,6 +177,36 @@ def delete_event(player, event_id):
 
 def get_key(kind):
     return Keys.get_by_id(kind).value
+
+
+def get_poll(chat):
+    return Poll.get_by_id(str(chat))
+
+
+@ndb.transactional
+def add_poll(chat, question):
+    Poll(id=str(chat), question=question, answers=[], users_asnwers=None).put()
+
+
+@ndb.transactional
+def add_answer(poll, answer):
+    poll.answers.append(answer)
+    poll.put()
+
+
+@ndb.transactional
+def answer_poll(poll, user, choice):
+    result = poll.users_asnwers
+    if result is None:
+        result = {}
+    result[user] = choice
+    poll.users_asnwers = result
+    poll.put()
+
+
+@ndb.transactional
+def end_poll(poll):
+    poll.key.delete()
 
 
 class Counter(ndb.Model):

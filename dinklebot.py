@@ -9,6 +9,7 @@ import collections
 import rsvp
 import logging
 import random
+import poll
 
 from google.appengine.api import urlfetch
 
@@ -137,6 +138,12 @@ r.register(rsvp.RsvpNewCommand())
 r.register(rsvp.RsvpJoinCommand())
 r.register(rsvp.RsvpLeaveCommand())
 r.register(rsvp.RsvpDeleteCommand())
+r.register(poll.PollCommand())
+r.register(poll.NewPollCommand())
+r.register(poll.AsnwerCommand())
+r.register(poll.VotePollCommand())
+r.register(poll.ResultPollCommand())
+r.register(poll.EndPollCommand())
 
 
 def recieve(request):
