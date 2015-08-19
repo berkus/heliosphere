@@ -3,8 +3,6 @@ __author__ = 'artemredkin'
 
 import db
 import telegram
-import dinklebot
-import collections
 
 from datetime import date, datetime, timedelta
 
