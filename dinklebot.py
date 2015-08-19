@@ -129,8 +129,14 @@ class QuoteCommand(Command):
 r = Registry()
 r.register(EchoCommand())
 r.register(ImageCommand())
-r.register(rsvp.RsvpCommand())
 r.register(QuoteCommand())
+r.register(rsvp.RsvpRegisterCommand())
+r.register(rsvp.RsvpTypesCommand())
+r.register(rsvp.RsvpListCommand())
+r.register(rsvp.RsvpNewCommand())
+r.register(rsvp.RsvpJoinCommand())
+r.register(rsvp.RsvpLeaveCommand())
+r.register(rsvp.RsvpDeleteCommand())
 
 
 def recieve(request):

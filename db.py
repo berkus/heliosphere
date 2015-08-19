@@ -140,9 +140,10 @@ def find_events():
 @ndb.transactional(xg=True)
 def add_event(player, event_type, date, comment):
     event_type = EventType.get_by_id(event_type).key
-    event_id = get_and_increment('Event')
-    event = Event(id=str(event_id), parent=events_ancestor, author=player.key, type=event_type, date=date, comment=comment)
+    event_id = str(get_and_increment('Event'))
+    event = Event(id=event_id, parent=events_ancestor, author=player.key, type=event_type, date=date, comment=comment)
     event.put()
+    return event_id
 
 
 @ndb.transactional(xg=True)
