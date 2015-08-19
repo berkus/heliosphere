@@ -2,7 +2,6 @@ __author__ = 'artemredkin'
 
 import db
 import telegram
-import collections
 
 def parse(message):
     values = message.split(None, 1)
@@ -12,12 +11,11 @@ def parse(message):
 
 
 def pretty_poll(poll):
-    s = u'Poll: ' + poll.question.encode('utf-8')
-    s += u'\n'
+    s = 'Poll: ' + poll.question.encode('utf-8') + '\n'
     answers = []
     for i, a in enumerate(poll.answers):
-        answers.append(str(i + 1).encode('utf-8') + u': ' + a)
-    s += u'\n'.join(answers)
+        answers.append(str(i + 1) + ': ' + a.encode('utf-8'))
+    s += '\n'.join(answers)
     return s
 
 
@@ -129,11 +127,11 @@ class ResultPollCommand:
             (count, prcnt) = results.get(answer, (0, 0.0))
             count += 1
             results[answer] = (count, (count/all_count * 100))
-        s = u'Results:\n'
+        s = 'Results:\n'
         answers = []
         for i, answer in enumerate(poll.answers):
             (count, prcnt) = results.get(i + 1, (0, 0.0))
-            answers.append(answer + ': ' + str(count).encode('utf-8') + u' votes, ' + str(prcnt).encode('utf-8') + u'%')
+            answers.append(answer.encode('utf-8') + ': ' + str(count) + ' votes, ' + str(prcnt) + '%')
         s += '\n'.join(answers)
         telegram.send(chat, s)
 
