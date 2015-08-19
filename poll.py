@@ -118,13 +118,13 @@ def pretty_results(chat, poll):
     results = {}
     all_count = len(poll.users_asnwers)
     for user, answer in poll.users_asnwers.iteritems():
-        (count, prcnt) = results.get(answer, (0, 0.0))
+        (count, prcnt) = results.get(answer, (0, 0))
         count += 1
-        results[answer] = (count, (count/all_count * 100))
+        results[answer] = (count, int(float(count)/float(all_count) * 100))
     s = poll.question.encode('utf-8') + '\nResults:\n'
     answers = []
     for i, answer in enumerate(poll.answers):
-        (count, prcnt) = results.get(i + 1, (0, 0.0))
+        (count, prcnt) = results.get(i + 1, (0, 0))
         answers.append(answer.encode('utf-8') + ': ' + str(count) + ' votes, ' + str(prcnt) + '%')
     s += '\n'.join(answers)
     telegram.send(chat, s)
