@@ -118,7 +118,7 @@ class ResultPollCommand:
         if poll is None:
             telegram.send(chat, "No active poll")
             return
-        if len(poll.users_asnwers) is None:
+        if poll.users_asnwers is None:
             telegram.send(chat, "No answers yet")
             return
         results = {}
