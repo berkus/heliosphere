@@ -121,7 +121,7 @@ def pretty_results(chat, poll):
         (count, prcnt) = results.get(answer, (0, 0.0))
         count += 1
         results[answer] = (count, (count/all_count * 100))
-    s = 'Results:\n'
+    s = poll.question.encode('utf-8') + '\nResults:\n'
     answers = []
     for i, answer in enumerate(poll.answers):
         (count, prcnt) = results.get(i + 1, (0, 0.0))
