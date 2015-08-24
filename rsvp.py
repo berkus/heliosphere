@@ -79,9 +79,7 @@ class RsvpListCommand:
             telegram.send(chat, 'Introduce yourself by providing your psn id: /register <psn-id>')
             return
         event_list = db.find_events()
-        if len(event_list) == 0:
-            telegram.send(author, 'No events')
-            return
+
         if arguments is None:
             event_list = filter(lambda e: e.date.date() == datetime.today().date(), event_list)
         elif arguments == 'my':
@@ -91,6 +89,10 @@ class RsvpListCommand:
         elif arguments is not None:
             event_type = db.find_type_by_code(arguments).key
             event_list = filter(lambda e: e.type == event_type, event_list)
+
+        if len(event_list) == 0:
+            telegram.send(chat, 'No events')
+            return
 
         for e in event_list:
             telegram.send(chat, pretty_event(e))
