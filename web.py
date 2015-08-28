@@ -49,6 +49,8 @@ class InfoPage(webapp2.RequestHandler):
         player = db.find_player(users.get_current_user().user_id())
         if player is None:
             self.redirect('/players')
+            return
+
         template_values = {
             'players': map(lambda p: p.to_dict(), db.find_players(True))
         }
@@ -62,6 +64,7 @@ class MainPage(webapp2.RequestHandler):
         player = db.find_player(users.get_current_user().user_id())
         if player is None:
             self.redirect('/players')
+            return
 
         events_page(self, player)
 
