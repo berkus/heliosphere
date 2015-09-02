@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% if player is defined %}
+    {% if player %}
         <title>{{ player.psn_id }}</title>
     {% else %}
         <title>New Player</title>
@@ -16,7 +16,7 @@
         <div class="form-group">
             <label for="{{ attribute }}" class="col-sm-2 control-label">{{ name }}</label>
             <div class="col-sm-10">
-                {% if player is defined %}
+                {% if player %}
                     {% set value = player.get(attribute) %}
                     <input type="text" class="form-control" id="{{ attribute }}" name="{{ attribute }}" value="{{ value|default("", True) }}">
                 {% else %}
@@ -48,7 +48,7 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <div class="checkbox">
                         <label>
-                            {% if player is defined and player.list_me %}
+                            {% if player and player.list_me %}
                                 <input type="checkbox" id="list_me" name="list_me" checked> List me
                             {%  else %}
                                 <input type="checkbox" id="list_me" name="list_me"> List me
