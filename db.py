@@ -107,7 +107,7 @@ def register_player_telegram(player, telegram_id):
 
 @ndb.transactional(xg=True)
 def add_player(user_id, first_name, last_name, psn_id, telegram, bungie, dtr, youtube, twitch, list_me):
-    Player(id=user_id, first_name=first_name, last_name=last_name, psn_id=psn_id, leader=False, list=list, telegram=telegram,
+    Player(id=user_id, first_name=first_name, last_name=last_name, psn_id=psn_id, leader=False, telegram=telegram,
            bungie=bungie, dtr=dtr, youtube=youtube, twitch=twitch, list_me=list_me).put()
 
 
