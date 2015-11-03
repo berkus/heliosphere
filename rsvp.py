@@ -90,8 +90,10 @@ class RsvpListCommand:
             if arguments.isdigit():
                 event_list = filter(lambda e: int(arguments) == int(e.key.id()), event_list)
             else:
-                event_type = db.find_type_by_code(arguments).key
-                event_list = filter(lambda e: e.type == event_type, event_list)
+                event_type = db.find_type_by_code(arguments)
+                if event_type is None:
+                    event_list = []
+                event_list = filter(lambda e: e.type == event_type.key, event_list)
 
         if len(event_list) == 0:
             telegram.send(chat, 'No events')
