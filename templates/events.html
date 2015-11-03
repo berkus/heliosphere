@@ -9,7 +9,7 @@
             <table class="table">
                 <thead>
                 <tr id="{{ event.type.id() }}">
-                    <th width="10%">
+                    <th width="5%">
                         <span class="h3">{{ event.date.strftime('%H:%M') }}</span>
                     </th>
                     <th width="5%">
@@ -28,7 +28,7 @@
                             <button type="button" class="btn btn-success btn-sm join-event" id="{{ event.key.id() }}">Join</button>
                         {% endif %}
                     </th>
-                    <th width="5%">
+                    <th width="10%">
                         <button type="button" class="btn btn-default btn-sm delete-event" id="{{ event.key.id() }}">
                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                         </button>
