@@ -7,15 +7,9 @@ $(document).ready(function() {
     }).on('changeDate', function(e){
         $('#date').val(e.format('mm/dd/yyyy'))
     });
-    $('#etype-dropdown').on('click', '.option li', function() {
-        var text = $(this).children().text();
-        var id = $(this).children().attr("selection-id");
-        var button = $('#etype-btn');
-        button.html(text + '&nbsp;<span class="caret"></span>');
-        button.attr("selection-id", id)
-    });
+    $('#event-type-select').selectize({});
     $('#event-form-submit').on('click', function() {
-        var event_type = $('#etype-btn').attr("selection-id");
+        var event_type = $('#event-type-select').val();
         var date = $('#date').val();
         var time = $('#time').val();
         var comment = $('#comment').val();
