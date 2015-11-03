@@ -92,7 +92,8 @@ class RsvpListCommand:
             else:
                 event_type = db.find_type_by_code(arguments)
                 if event_type is None:
-                    event_list = []
+                    telegram.send(chat, 'Event type ' + arguments + ' not found')
+                    return
                 event_list = filter(lambda e: e.type == event_type.key, event_list)
 
         if len(event_list) == 0:
