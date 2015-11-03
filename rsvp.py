@@ -87,8 +87,11 @@ class RsvpListCommand:
         elif arguments == 'all':
             pass
         elif arguments is not None:
-            event_type = db.find_type_by_code(arguments).key
-            event_list = filter(lambda e: e.type == event_type, event_list)
+            if arguments.isdigit():
+                event_list = filter(lambda e: int(arguments) == int(e.key.id()), event_list)
+            else:
+                event_type = db.find_type_by_code(arguments).key
+                event_list = filter(lambda e: e.type == event_type, event_list)
 
         if len(event_list) == 0:
             telegram.send(chat, 'No events')
@@ -98,7 +101,7 @@ class RsvpListCommand:
             telegram.send(chat, pretty_event(e))
 
     def help(self):
-        return "Usage: /list [my|all|type]"
+        return "Usage: /list [my|all|type|id]"
 
     def name(self):
         return "/list"
