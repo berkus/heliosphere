@@ -10,7 +10,7 @@
                 <thead>
                 <tr id="{{ event.type.id() }}">
                     <th width="10%">
-                        <span class="h3">{{ event.date.strftime('%H:%M') }}</span>
+                        <span class="h3">{{ event.date.strftime('%H:%M') }}&nbsp;&nbsp;#{{ event.type.id() }}</span>
                     </th>
                     <th width="60%">
                         <span class="h3"><small>{{ type.name }}</small></span>
