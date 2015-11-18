@@ -159,8 +159,8 @@ def join_event(player, event_id):
     if event_type.capacity > len(event.participants):
         event.participants.append(player.psn_id)
         event.put()
-        return true
-    return false
+        return True
+    return False
 
 
 @ndb.transactional(xg=True)
