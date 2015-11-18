@@ -165,8 +165,10 @@ class RsvpJoinCommand:
         if player is None:
             telegram.send(chat, "Introduce yourself by providing your psn id: /register <psn-id>")
             return
-        db.join_event(player, event_id)
-        telegram.send(chat, player.psn_id + ' joined event #' + event_id)
+        if db.join_event(player, event_id):
+            telegram.send(chat, player.psn_id + ' joined event #' + event_id)
+        else:
+            telegram.send(chat, 'event is full')
 
     def help(self):
         return "Usage: /join <event id>"
