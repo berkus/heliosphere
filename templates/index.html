@@ -11,11 +11,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/js/bootstrap-datepicker.min.js"></script>
     <script src="/static/selectize.js"></script>
     <script src="/static/heliosphere.js"></script>
+    <script src="/static/newyear.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Events</title>
 </head>
-<body id="snow">
+<body>
     {% include 'navbar.html' %}
+    <canvas id="canvas">
+    </canvas>
 
     {% include 'events_form.html' %}
 
