@@ -2,12 +2,12 @@ body {
     background-color:#333;
     color: white;
 }
-.table-ny > thead > tr > th {
+.table > thead > tr > th {
     vertical-align: bottom;
     border-bottom: 2px solid rgb(119, 119, 119)
 }
-.table-ny > tbody > tr > td, .table-ny > tbody > tr > th, .table-ny > tfoot > tr > td, .table-ny > tfoot > tr > th,
-.table-ny > thead > tr > td, .table-ny > thead > tr > th {
+.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th,
+.table > thead > tr > td, .table > thead > tr > th {
     padding: 8px;
     line-height: 1.42857143;
     vertical-align: top;
